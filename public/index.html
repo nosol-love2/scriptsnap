@@ -986,11 +986,15 @@
     </div>
   </div>
 
+  <!-- 쿠팡 파트너스 대가성 고지 (상단) -->
+  <div style="text-align:center;padding:8px 16px;font-size:12px;color:#666;background:#f0f0ef;">
+    이 페이지는 쿠팡 파트너스 활동으로 수수료를 제공받습니다
+  </div>
+
   <!-- Ad Banner (쿠팡 파트너스 영역) -->
   <div class="ad-banner">
     <div class="ad-text">
       유튜버 필수템 — 마이크 · 조명 · 삼각대 할인 중
-      <small>이 포스팅은 쿠팡 파트너스 활동의 일환으로 수수료를 제공받습니다</small>
     </div>
     <a href="https://link.coupang.com/a/902ddf93-7cfe-4c1a-8533-ad11797d848b/cd5794799233ddbf5fd670d6e86601a7c78616be" class="ad-link" id="adLink" target="_blank" rel="noopener">구경하기</a>
   </div>
@@ -1276,7 +1280,6 @@
   <footer class="footer">
     <p>ScriptSnap &copy; 2026 &middot; 유튜브 자막 추출 · 대본 복사 · 영상 요약 서비스</p>
     <p style="margin-top:4px;">유튜브 자막 추출기 | 유튜브 대본 뽑기 | 유튜브 스크립트 복사 | 숏츠 대본 만들기</p>
-    <p style="margin-top:12px;font-size:10px;color:#ccc;letter-spacing:-0.2px;">이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다</p>
   </footer>
 
   <script>
@@ -1349,18 +1352,12 @@
       if (e.target === rateLimitModal) rateLimitModal.classList.remove('show');
     });
 
-    // ─── 쿠팡 제휴링크 ──────────────────────────────
-    const COUPANG_URL = 'https://link.coupang.com/a/902ddf93-7cfe-4c1a-8533-ad11797d848b/cd5794799233ddbf5fd670d6e86601a7c78616be';
-
     extractBtn.addEventListener('click', async () => {
       // 하루 1회 제한 체크
       if (isRateLimited()) {
         rateLimitModal.classList.add('show');
         return;
       }
-
-      // 쿠팡 제휴링크 새 탭으로 열기
-      window.open(COUPANG_URL, '_blank', 'noopener');
 
       const url = urlInput.value.trim();
 
