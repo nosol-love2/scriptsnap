@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ScriptSnap — 유튜브 대본 추출 | 무료 자막 추출기</title>
+  <meta name="description" content="유튜브 영상 URL만 붙여넣으면 자막을 즉시 추출합니다. 전체 대본, 요약, 숏츠 대본, 후킹 문장까지. 무료 유튜브 자막 추출 서비스." />
+  <meta name="keywords" content="유튜브 대본 추출, 유튜브 자막 추출, youtube transcript, 유튜브 스크립트, 숏츠 대본, 유튜브 요약, 자막 복사, 유튜브 자막 다운로드" />
+  <meta name="author" content="ScriptSnap" />
+  <link rel="canonical" href="https://scriptsnap.vercel.app/" />
+
+  <!-- Open Graph (카카오톡, 페이스북 공유) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="ScriptSnap — 유튜브 대본 추출기" />
+  <meta property="og:description" content="URL만 붙여넣으면 유튜브 자막을 즉시 추출. 전체 대본, 요약, 숏츠 대본, 후킹 문장까지 무료!" />
+  <meta property="og:url" content="https://scriptsnap.vercel.app/" />
+  <meta property="og:site_name" content="ScriptSnap" />
+  <meta property="og:locale" content="ko_KR" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="ScriptSnap — 유튜브 대본 추출기" />
+  <meta name="twitter:description" content="URL만 붙여넣으면 유튜브 자막을 즉시 추출. 무료 자막 추출 서비스." />
+
+  <!-- Naver 검색 등록 -->
+  <meta name="naver-site-verification" content="" />
+
+  <!-- 구조화 데이터 (Google 검색 리치 결과) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "ScriptSnap",
+    "url": "https://scriptsnap.vercel.app/",
+    "description": "유튜브 영상 URL만 붙여넣으면 자막을 즉시 추출하는 무료 웹 서비스. 전체 대본, 요약, 숏츠 대본, 후킹 문장 추출 지원.",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Web",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "KRW"
+    },
+    "inLanguage": ["ko", "en"]
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* ─── Reset & Base ──────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f7f7f6;
+      color: #1a1a1a;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ─── Color System ─────────────────────────── */
+    :root {
+      --primary: #83b078;
+      --primary-dark: #6a9960;
+      --primary-light: #a8cea0;
+      --bg: #f7f7f6;
+      --dark: #1E2A1E;
+      --dark-light: #2a3a2a;
+      --white: #ffffff;
+      --gray-100: #f0f0ef;
+      --gray-200: #e0e0de;
+      --gray-400: #999;
+      --gray-600: #666;
+      --radius: 12px;
+      --shadow: 0 2px 12px rgba(0,0,0,0.08);
+      --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+    }
+
+    /* ─── Navigation ───────────────────────────── */
+    .nav {
+      background: var(--dark);
+      padding: 0 24px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .nav-logo svg { width: 28px; height: 28px; }
+    .nav-logo span {
+      color: var(--white);
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+    .badge-beta {
+      background: var(--primary);
+      color: var(--white);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 20px;
+      letter-spacing: 0.5px;
+    }
+
+    /* ─── Hero ──────────────────────────────────── */
+    .hero {
+      text-align: center;
+      padding: 48px 24px 24px;
+    }
+    .hero h1 {
+      font-size: 36px;
+      font-weight: 800;
+      color: var(--dark);
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+    .hero h1 em {
+      font-style: normal;
+      color: var(--primary);
+    }
+    .hero p {
+      font-size: 16px;
+      color: var(--gray-600);
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    /* ─── Stats Bar ────────────────────────────── */
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      padding: 16px 24px;
+      flex-wrap: wrap;
+    }
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--gray-600);
+      font-weight: 500;
+    }
+    .stat-icon {
+      width: 20px;
+      height: 20px;
+      background: var(--primary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    /* ─── Bookmark Banner ──────────────────────── */
+    .bookmark-banner {
+      background: var(--dark);
+      color: var(--white);
+      margin: 0 24px 16px;
+      border-radius: var(--radius);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 13px;
+    }
+    .bookmark-banner .text {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .bookmark-banner kbd {
+      background: rgba(255,255,255,0.15);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-family: 'Inter', monospace;
+    }
+    .bookmark-btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s;
+    }
+    .bookmark-btn:hover { background: var(--primary-dark); }
+
+    /* ─── Ad Banner ─────────────────────────────── */
+    .ad-banner {
+      background: var(--dark-light);
+      margin: 0 24px 24px;
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .ad-banner .ad-text {
+      color: var(--white);
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .ad-banner .ad-text small {
+      display: block;
+      font-size: 11px;
+      color: var(--gray-400);
+      margin-top: 2px;
+    }
+    .ad-link {
+      background: #FF6B35;
+      color: white;
+      text-decoration: none;
+      padding: 8px 20px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      transition: background 0.2s;
+    }
+    .ad-link:hover { background: #e55a28; }
+
+    /* ─── Main Card ─────────────────────────────── */
+    .main-card {
+      max-width: 720px;
+      margin: 0 auto 40px;
+      padding: 0 24px;
+    }
+    .card {
+      background: var(--white);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 32px;
+    }
+
+    /* URL Input */
+    .input-group {
+      margin-bottom: 24px;
+    }
+    .input-group label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--dark);
+    }
+    .url-input-wrapper {
+      display: flex;
+      gap: 0;
+      border: 2px solid var(--gray-200);
+      border-radius: 10px;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .url-input-wrapper:focus-within {
+      border-color: var(--primary);
+    }
+    .url-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      background: var(--gray-100);
+      color: var(--gray-400);
+      flex-shrink: 0;
+    }
+    .url-input {
+      flex: 1;
+      border: none;
+      outline: none;
+      padding: 14px 16px;
+      font-size: 15px;
+      font-family: 'Inter', sans-serif;
+      background: transparent;
+    }
+    .url-input::placeholder { color: var(--gray-400); }
+
+    /* Mode Buttons */
+    .mode-group {
+      margin-bottom: 24px;
+    }
+    .mode-group label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: var(--dark);
+    }
+    .mode-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .mode-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 16px;
+      border: 2px solid var(--gray-200);
+      border-radius: 10px;
+      background: var(--white);
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Inter', sans-serif;
+    }
+    .mode-btn:hover {
+      border-color: var(--primary-light);
+      background: #f5faf3;
+    }
+    .mode-btn.active {
+      border-color: var(--primary);
+      background: #eef5ec;
+    }
+    .mode-btn .icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      background: var(--gray-100);
+      flex-shrink: 0;
+    }
+    .mode-btn.active .icon {
+      background: var(--primary);
+      color: white;
+    }
+    .mode-btn .label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--dark);
+    }
+    .mode-btn .desc {
+      font-size: 11px;
+      color: var(--gray-600);
+      margin-top: 1px;
+    }
+
+    /* Extract Button */
+    .extract-btn {
+      width: 100%;
+      padding: 16px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .extract-btn:hover:not(:disabled) {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(131,176,120,0.4);
+    }
+    .extract-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .extract-btn.locked {
+      background: var(--gray-400);
+    }
+
+    /* Spinner */
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      display: none;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-6px); }
+      40% { transform: translateX(6px); }
+      60% { transform: translateX(-4px); }
+      80% { transform: translateX(4px); }
+    }
+
+    /* ─── Result Section ───────────────────────── */
+    .result-section {
+      display: none;
+      margin-top: 24px;
+    }
+    .result-section.show { display: block; }
+
+    .result-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .result-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--dark);
+    }
+    .result-stats {
+      font-size: 12px;
+      color: var(--gray-600);
+    }
+
+    .result-box {
+      background: var(--gray-100);
+      border-radius: 10px;
+      padding: 20px;
+      max-height: 480px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 14px;
+      line-height: 1.8;
+      color: #333;
+    }
+
+    .result-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .copy-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 20px;
+      background: var(--dark);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: background 0.2s;
+    }
+    .copy-btn:hover:not(.locked) { background: var(--dark-light); }
+    .copy-btn.copied { background: var(--primary); }
+    .copy-btn.locked {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* Unlock Banner */
+    .unlock-banner {
+      display: none;
+      background: linear-gradient(135deg, #1E2A1E 0%, #2a3a2a 100%);
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin-top: 12px;
+      text-align: center;
+    }
+    .unlock-banner.show { display: block; }
+    .unlock-banner p {
+      color: #ccc;
+      font-size: 13px;
+      margin-bottom: 10px;
+    }
+    .unlock-banner p strong {
+      color: white;
+    }
+    .unlock-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #FF6B35;
+      color: white;
+      text-decoration: none;
+      padding: 10px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      transition: background 0.2s;
+    }
+    .unlock-link:hover { background: #e55a28; }
+
+    /* ─── Error ─────────────────────────────────── */
+    .error-msg {
+      display: none;
+      background: #fee;
+      color: #c33;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-top: 16px;
+    }
+    .error-msg.show { display: block; }
+
+    /* ─── Footer ───────────────────────────────── */
+    .footer {
+      text-align: center;
+      padding: 32px 24px;
+      color: var(--gray-400);
+      font-size: 12px;
+    }
+    .footer a {
+      color: var(--gray-600);
+      text-decoration: none;
+    }
+    .footer a:hover { text-decoration: underline; }
+
+    /* ─── Responsive ───────────────────────────── */
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 26px; }
+      .hero p { font-size: 14px; }
+      .stats { gap: 16px; }
+      .mode-buttons { grid-template-columns: 1fr; }
+      .card { padding: 20px; }
+      .bookmark-banner { flex-direction: column; text-align: center; }
+      .ad-banner { flex-direction: column; text-align: center; }
+      .nav { padding: 0 16px; }
+      .main-card { padding: 0 16px; }
+      .bookmark-banner, .ad-banner { margin: 0 16px 12px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="nav-logo">
+      <svg viewBox="0 0 28 28" fill="none">
+        <rect width="28" height="28" rx="6" fill="#83b078"/>
+        <path d="M8 10l5 4-5 4V10z" fill="white"/>
+        <rect x="15" y="10" width="5" height="8" rx="1" fill="white" opacity="0.8"/>
+      </svg>
+      <span>ScriptSnap</span>
+      <span class="badge-beta">BETA</span>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <h1>유튜브 영상을 <em>대본</em>으로</h1>
+    <p>URL만 붙여넣으면 AI가 자막을 추출하고 원하는 형식으로 변환해드립니다</p>
+  </section>
+
+  <!-- Stats Bar -->
+  <div class="stats">
+    <div class="stat-item">
+      <div class="stat-icon">$</div>
+      <span>완전 무료</span>
+    </div>
+    <div class="stat-item">
+      <div class="stat-icon">~</div>
+      <span>AI 자동 추출</span>
+    </div>
+    <div class="stat-item">
+      <div class="stat-icon">A</div>
+      <span>한국어 · 영어</span>
+    </div>
+    <div class="stat-item">
+      <div class="stat-icon">4</div>
+      <span>4가지 모드</span>
+    </div>
+  </div>
+
+  <!-- Bookmark Banner -->
+  <div class="bookmark-banner">
+    <div class="text">
+      <span>자주 쓰신다면 즐겨찾기에 추가하세요!</span>
+      <kbd>Ctrl + D</kbd>
+    </div>
+    <button class="bookmark-btn" onclick="alert('Ctrl+D를 눌러 즐겨찾기에 추가하세요!')">
+      즐겨찾기 추가
+    </button>
+  </div>
+
+  <!-- Ad Banner (쿠팡 파트너스 영역) -->
+  <div class="ad-banner">
+    <div class="ad-text">
+      유튜버 필수템 — 마이크 · 조명 · 삼각대 할인 중
+      <small>이 포스팅은 쿠팡 파트너스 활동의 일환으로 수수료를 제공받습니다</small>
+    </div>
+    <a href="https://link.coupang.com/a/902ddf93-7cfe-4c1a-8533-ad11797d848b/cd5794799233ddbf5fd670d6e86601a7c78616be" class="ad-link" id="adLink" target="_blank" rel="noopener">구경하기</a>
+  </div>
+
+  <!-- Main Card -->
+  <div class="main-card">
+    <div class="card">
+
+      <!-- URL Input -->
+      <div class="input-group">
+        <label>YouTube URL</label>
+        <div class="url-input-wrapper">
+          <div class="url-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M10 15l5.19-3L10 9v6m11.56-7.83c.13.47.22 1.1.28 1.9.07.8.1 1.49.1 2.09L22 12c0 2.19-.16 3.8-.44 4.83-.25.9-.83 1.48-1.73 1.73-.47.13-1.33.22-2.65.28-1.3.07-2.49.1-3.59.1L12 19c-4.19 0-6.8-.16-7.83-.44-.9-.25-1.48-.83-1.73-1.73-.13-.47-.22-1.1-.28-1.9-.07-.8-.1-1.49-.1-2.09L2 12c0-2.19.16-3.8.44-4.83.25-.9.83-1.48 1.73-1.73.47-.13 1.33-.22 2.65-.28 1.3-.07 2.49-.1 3.59-.1L12 5c4.19 0 6.8.16 7.83.44.9.25 1.48.83 1.73 1.73z"/>
+            </svg>
+          </div>
+          <input
+            type="text"
+            class="url-input"
+            id="urlInput"
+            placeholder="https://youtube.com/watch?v=..."
+            autocomplete="off"
+            spellcheck="false"
+          />
+        </div>
+      </div>
+
+      <!-- Mode Selection -->
+      <div class="mode-group">
+        <label>추출 모드 선택</label>
+        <div class="mode-buttons">
+          <button class="mode-btn active" data-mode="raw">
+            <div class="icon">&#x1f4dd;</div>
+            <div>
+              <div class="label">원본 자막</div>
+              <div class="desc">AI 가공 없이 즉시 추출</div>
+            </div>
+          </button>
+          <button class="mode-btn" data-mode="full">
+            <div class="icon">&#x1f4c4;</div>
+            <div>
+              <div class="label">전체 대본</div>
+              <div class="desc">자연스러운 문장으로 정리</div>
+            </div>
+          </button>
+          <button class="mode-btn" data-mode="summary">
+            <div class="icon">&#x1f4cb;</div>
+            <div>
+              <div class="label">요약본</div>
+              <div class="desc">핵심 내용 3~5줄 압축</div>
+            </div>
+          </button>
+          <button class="mode-btn" data-mode="shorts">
+            <div class="icon">&#x1f3ac;</div>
+            <div>
+              <div class="label">숏츠 대본화</div>
+              <div class="desc">60초 숏츠 구조로 재구성</div>
+            </div>
+          </button>
+          <button class="mode-btn" data-mode="hooks">
+            <div class="icon">&#x1f3af;</div>
+            <div>
+              <div class="label">후킹 문장 추출</div>
+              <div class="desc">임팩트 문장 5~10개</div>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <!-- 쿠팡 클릭 유도 배너 (추출 버튼 바로 위) -->
+      <div class="unlock-banner show" id="unlockBanner">
+        <p><strong>대본 추출 기능</strong>을 사용하려면<br>아래 링크를 한 번만 클릭해주세요!</p>
+        <a
+          href="https://link.coupang.com/a/902ddf93-7cfe-4c1a-8533-ad11797d848b/cd5794799233ddbf5fd670d6e86601a7c78616be"
+          class="unlock-link"
+          id="unlockLink"
+          target="_blank"
+          rel="noopener"
+        >
+          쿠팡 구경하고 추출 잠금 해제
+        </a>
+        <p style="margin-top:8px;margin-bottom:0;font-size:11px;color:#888;">
+          이 포스팅은 쿠팡 파트너스 활동의 일환으로 수수료를 제공받습니다
+        </p>
+      </div>
+
+      <!-- Extract Button -->
+      <button class="extract-btn locked" id="extractBtn" disabled>
+        <span class="spinner" id="spinner"></span>
+        <span id="btnText">대본 추출하기 (잠금)</span>
+      </button>
+
+      <!-- Error -->
+      <div class="error-msg" id="errorMsg"></div>
+
+      <!-- Result -->
+      <div class="result-section" id="resultSection">
+        <div class="result-header">
+          <span class="result-title" id="resultTitle">추출 결과</span>
+          <span class="result-stats" id="resultStats"></span>
+        </div>
+        <div class="result-box" id="resultBox"></div>
+        <div class="result-actions">
+          <button class="copy-btn" id="copyBtn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+              <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+            </svg>
+            <span id="copyText">복사하기</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>ScriptSnap &copy; 2026 &middot; <a href="#">이용약관</a></p>
+  </footer>
+
+  <script>
+    // ─── State ────────────────────────────────────
+    let selectedMode = 'raw';
+
+    // ─── Mode Selection ──────────────────────────
+    const modeBtns = document.querySelectorAll('.mode-btn');
+    modeBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        modeBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedMode = btn.dataset.mode;
+      });
+    });
+
+    // ─── Extract ──────────────────────────────────
+    const urlInput = document.getElementById('urlInput');
+    const extractBtn = document.getElementById('extractBtn');
+    const spinner = document.getElementById('spinner');
+    const btnText = document.getElementById('btnText');
+    const errorMsg = document.getElementById('errorMsg');
+    const resultSection = document.getElementById('resultSection');
+    const resultBox = document.getElementById('resultBox');
+    const resultTitle = document.getElementById('resultTitle');
+    const resultStats = document.getElementById('resultStats');
+    const copyBtn = document.getElementById('copyBtn');
+    const copyText = document.getElementById('copyText');
+
+    const MODE_NAMES = {
+      raw: '원본 자막',
+      full: '전체 대본',
+      summary: '요약본',
+      shorts: '숏츠 대본',
+      hooks: '후킹 문장',
+    };
+
+    extractBtn.addEventListener('click', async () => {
+      if (!unlocked) {
+        unlockBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        unlockBanner.style.animation = 'none';
+        unlockBanner.offsetHeight; // reflow
+        unlockBanner.style.animation = 'shake 0.4s ease';
+        return;
+      }
+
+      const url = urlInput.value.trim();
+
+      if (!url) {
+        showError('YouTube URL을 입력해주세요.');
+        return;
+      }
+      if (!isValidYoutubeUrl(url)) {
+        showError('올바른 YouTube URL 형식이 아닙니다.');
+        return;
+      }
+
+      setLoading(true);
+      hideError();
+      resultSection.classList.remove('show');
+
+      try {
+        // 원본 자막 모드: AI 없이 즉시 추출 (무료)
+        // 나머지 모드: 자막 추출 + Claude AI 가공
+        const endpoint = selectedMode === 'raw' ? '/api/raw-transcript' : '/api/extract';
+        const body = selectedMode === 'raw' ? { url } : { url, mode: selectedMode };
+
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.error || '추출에 실패했습니다.');
+        }
+
+        const text = data.result;
+        resultBox.textContent = text;
+        resultTitle.textContent = `${MODE_NAMES[selectedMode]} 결과`;
+
+        const charCount = text.length;
+        const wordCount = text.split(/\s+/).filter(Boolean).length;
+        resultStats.textContent = `${charCount.toLocaleString()}자 · ${wordCount.toLocaleString()}단어`;
+
+        resultSection.classList.add('show');
+        resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } catch (err) {
+        showError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    });
+
+    // Enter 키 지원
+    urlInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') extractBtn.click();
+    });
+
+    // ─── 쿠팡 클릭 → 추출 잠금 해제 ─────────────────
+    let unlocked = localStorage.getItem('extractUnlocked') === 'true';
+    const unlockBanner = document.getElementById('unlockBanner');
+    const unlockLink = document.getElementById('unlockLink');
+    const adLink = document.getElementById('adLink');
+
+    if (unlocked) applyUnlock();
+
+    unlockLink.addEventListener('click', onCoupangClick);
+    adLink.addEventListener('click', onCoupangClick);
+
+    function onCoupangClick() {
+      unlocked = true;
+      localStorage.setItem('extractUnlocked', 'true');
+      applyUnlock();
+    }
+
+    function applyUnlock() {
+      extractBtn.disabled = false;
+      extractBtn.classList.remove('locked');
+      btnText.textContent = '대본 추출하기';
+      unlockBanner.classList.remove('show');
+    }
+
+    // ─── Copy (자유) ─────────────────────────────────
+    copyBtn.addEventListener('click', async () => {
+      const text = resultBox.textContent;
+      try {
+        await navigator.clipboard.writeText(text);
+        copyBtn.classList.add('copied');
+        copyText.textContent = '복사 완료!';
+        setTimeout(() => {
+          copyBtn.classList.remove('copied');
+          copyText.textContent = '복사하기';
+        }, 2000);
+      } catch {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        copyText.textContent = '복사 완료!';
+        setTimeout(() => { copyText.textContent = '복사하기'; }, 2000);
+      }
+    });
+
+    // ─── Helpers ──────────────────────────────────
+    function isValidYoutubeUrl(url) {
+      return /youtube\.com\/watch\?v=/.test(url)
+        || /youtu\.be\//.test(url)
+        || /youtube\.com\/shorts\//.test(url);
+    }
+
+    function setLoading(loading) {
+      extractBtn.disabled = loading;
+      spinner.style.display = loading ? 'block' : 'none';
+      const loadingText = selectedMode === 'raw' ? '자막 추출 중...' : 'AI가 가공 중입니다...';
+      btnText.textContent = loading ? loadingText : (unlocked ? '대본 추출하기' : '대본 추출하기 (잠금)');
+    }
+
+    function showError(msg) {
+      errorMsg.textContent = msg;
+      errorMsg.classList.add('show');
+    }
+
+    function hideError() {
+      errorMsg.classList.remove('show');
+    }
+  </script>
+</body>
+</html>

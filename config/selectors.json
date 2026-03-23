@@ -1,0 +1,22 @@
+{
+  "_comment": "Claude 웹 UI DOM 셀렉터 — night-agent 기반",
+  "_updated": "2026-03-23",
+
+  "input": "div.ProseMirror[contenteditable='true']",
+  "input_alt": "fieldset textarea",
+
+  "send_button": "button[aria-label='Send Message']",
+  "send_button_alt": "button[data-testid='send-button'], button[aria-label='Send message'], button[aria-label='메시지 보내기']",
+
+  "answer_container": ".font-claude-response",
+  "answer_container_alt": "[data-testid='chat-message-content']",
+
+  "stop_button": "button[aria-label='Stop Response'], button[aria-label='Stop response']",
+  "stop_button_alt": "button[aria-label='응답 중지'], button[data-testid='stop-button']",
+
+  "loading_indicator": "[data-testid='message-loading']",
+  "loading_indicator_alt": ".animate-pulse",
+
+  "login_required": "a[href*='login'], button:has-text('Log in'), button:has-text('Sign in')",
+  "error_message": "[role='alert'], .error-message"
+}
