@@ -5,6 +5,15 @@
 
 const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36';
 
+// IP 기반 하루 1회 제한 (warm instance 동안 유지)
+const ipUsage = new Map();
+
+function getClientIp(req) {
+  return req.headers['x-forwarded-for']?.split(',')[0]?.trim()
+    || req.headers['x-real-ip']
+    || 'unknown';
+}
+
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'POST만 지원합니다.' });
@@ -15,6 +24,13 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({ error: 'url을 입력해주세요.' });
   }
 
+  const clientIp = getClientIp(req);
+  const today = new Date().toDateString();
+  const last = ipUsage.get(clientIp);
+  if (last === today) {
+    return res.status(429).json({ error: '하루 1회 무료 추출이 완료되었습니다. Pro 버전을 준비 중입니다!' });
+  }
+
   const videoId = parseVideoId(url);
   if (!videoId) {
     return res.status(400).json({ error: '올바른 YouTube URL을 입력해주세요.' });
@@ -22,6 +38,7 @@ module.exports = async function handler(req, res) {
 
   try {
     const transcript = await fetchTranscript(videoId);
+    ipUsage.set(clientIp, today);
     res.json({ result: transcript });
   } catch (err) {
     res.status(500).json({ error: err.message });

@@ -22,6 +22,9 @@
   <meta name="twitter:title" content="유튜브 자막 추출기 - ScriptSnap (무료)" />
   <meta name="twitter:description" content="URL만 붙여넣으면 유튜브 자막 추출. 대본 복사, 요약, 숏츠 대본까지 무료!" />
 
+  <!-- Google 검색 등록 -->
+  <meta name="google-site-verification" content="CEh_mPJXRzsMI41RbXi5KzBKK0Sjq1vRCunR9_ln03A" />
+
   <!-- Naver 검색 등록 -->
   <meta name="naver-site-verification" content="" />
 
@@ -157,12 +160,12 @@
 
     /* ─── Color System ─────────────────────────── */
     :root {
-      --primary: #83b078;
-      --primary-dark: #6a9960;
-      --primary-light: #a8cea0;
+      --primary: #E74C3C;
+      --primary-dark: #C0392B;
+      --primary-light: #FF7675;
       --bg: #f7f7f6;
-      --dark: #1E2A1E;
-      --dark-light: #2a3a2a;
+      --dark: #1E1E24;
+      --dark-light: #2A2A32;
       --white: #ffffff;
       --gray-100: #f0f0ef;
       --gray-200: #e0e0de;
@@ -221,8 +224,8 @@
     }
     .nav-bookmark:hover { transform: scale(1.05); }
     @keyframes bookmark-pulse {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(131,176,120,0.6); }
-      50% { box-shadow: 0 0 0 8px rgba(131,176,120,0); }
+      0%, 100% { box-shadow: 0 0 0 0 rgba(231,76,60,0.6); }
+      50% { box-shadow: 0 0 0 8px rgba(231,76,60,0); }
     }
 
     /* ─── Hero ──────────────────────────────────── */
@@ -397,11 +400,11 @@
     }
     .mode-btn:hover {
       border-color: var(--primary-light);
-      background: #f5faf3;
+      background: #fdf5f5;
     }
     .mode-btn.active {
       border-color: var(--primary);
-      background: #eef5ec;
+      background: #fdeef0;
     }
     .mode-btn .icon {
       width: 36px;
@@ -450,7 +453,7 @@
     .extract-btn:hover:not(:disabled) {
       background: var(--primary-dark);
       transform: translateY(-1px);
-      box-shadow: 0 4px 16px rgba(131,176,120,0.4);
+      box-shadow: 0 4px 16px rgba(231,76,60,0.4);
     }
     .extract-btn:disabled {
       opacity: 0.6;
@@ -472,8 +475,8 @@
       animation: btn-shine 3s ease-in-out infinite;
     }
     @keyframes btn-glow {
-      0%, 100% { box-shadow: 0 0 8px rgba(131,176,120,0.4); }
-      50% { box-shadow: 0 0 24px rgba(131,176,120,0.7), 0 0 48px rgba(131,176,120,0.3); }
+      0%, 100% { box-shadow: 0 0 8px rgba(231,76,60,0.4); }
+      50% { box-shadow: 0 0 24px rgba(231,76,60,0.7), 0 0 48px rgba(231,76,60,0.3); }
     }
     @keyframes btn-shine {
       0% { left: -100%; }
@@ -664,6 +667,249 @@
       line-height: 1.5;
     }
 
+    /* ─── Rate Limit Modal ─────────────────────── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 36px 32px;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+      box-shadow: var(--shadow-lg);
+      animation: modalIn 0.3s ease;
+    }
+    @keyframes modalIn {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .modal-icon {
+      width: 56px;
+      height: 56px;
+      background: #FFF3F3;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      font-size: 28px;
+    }
+    .modal h3 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 8px;
+    }
+    .modal p {
+      font-size: 14px;
+      color: var(--gray-600);
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+    .modal-badge {
+      display: inline-block;
+      background: var(--primary);
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 16px;
+    }
+    .modal-close {
+      background: var(--dark);
+      color: white;
+      border: none;
+      padding: 12px 32px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: background 0.2s;
+    }
+    .modal-close:hover { background: var(--dark-light); }
+
+    /* ─── Developer Support Section ────────────── */
+    .support-section {
+      max-width: 720px;
+      margin: 0 auto 24px;
+      padding: 0 24px;
+    }
+    .support-card {
+      background: var(--white);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 32px;
+      text-align: center;
+    }
+    .support-card h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 6px;
+    }
+    .support-card > p {
+      font-size: 13px;
+      color: var(--gray-600);
+      margin-bottom: 20px;
+    }
+    .support-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+    }
+    .support-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 20px 12px;
+      background: var(--gray-100);
+      border-radius: 12px;
+      text-decoration: none;
+      color: var(--dark);
+      transition: all 0.2s;
+      cursor: pointer;
+      border: 2px solid transparent;
+    }
+    .support-item:hover {
+      border-color: var(--primary-light);
+      background: #FFF5F5;
+      transform: translateY(-2px);
+    }
+    .support-icon {
+      width: 44px;
+      height: 44px;
+      background: var(--dark);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+    .support-item .s-title {
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .support-item .s-desc {
+      font-size: 11px;
+      color: var(--gray-600);
+    }
+
+    /* Service Tags */
+    .service-tags {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .service-tag {
+      background: var(--gray-100);
+      color: var(--dark);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1px solid var(--gray-200);
+    }
+    .service-tag.highlight {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    /* ─── Message Form ─────────────────────────── */
+    .msg-form {
+      background: var(--white);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 32px;
+      margin-top: 16px;
+    }
+    .msg-form h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 6px;
+      text-align: center;
+    }
+    .msg-form > p {
+      font-size: 13px;
+      color: var(--gray-600);
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .msg-field {
+      margin-bottom: 12px;
+    }
+    .msg-field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 6px;
+    }
+    .msg-input {
+      width: 100%;
+      border: 2px solid var(--gray-200);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .msg-input:focus { border-color: var(--primary); }
+    .msg-textarea {
+      width: 100%;
+      border: 2px solid var(--gray-200);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      resize: vertical;
+      min-height: 100px;
+      transition: border-color 0.2s;
+    }
+    .msg-textarea:focus { border-color: var(--primary); }
+    .msg-send {
+      width: 100%;
+      padding: 14px;
+      background: var(--dark);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: background 0.2s;
+    }
+    .msg-send:hover { background: var(--dark-light); }
+    .msg-send:disabled { opacity: 0.5; cursor: not-allowed; }
+    .msg-result {
+      display: none;
+      text-align: center;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-top: 12px;
+    }
+    .msg-result.success { display: block; background: #f0fdf4; color: #16a34a; }
+    .msg-result.error { display: block; background: #fef2f2; color: #dc2626; }
+
     /* ─── Footer ───────────────────────────────── */
     .footer {
       text-align: center;
@@ -689,6 +935,8 @@
       .nav { padding: 0 16px; }
       .main-card { padding: 0 16px; }
       .ad-banner { margin: 0 16px 12px; }
+      .support-actions { grid-template-columns: 1fr; }
+      .support-section { padding: 0 16px; }
     }
   </style>
 </head>
@@ -698,11 +946,12 @@
   <nav class="nav">
     <div class="nav-logo">
       <svg viewBox="0 0 28 28" fill="none">
-        <rect width="28" height="28" rx="6" fill="#83b078"/>
+        <rect width="28" height="28" rx="6" fill="#E74C3C"/>
         <path d="M8 10l5 4-5 4V10z" fill="white"/>
         <rect x="15" y="10" width="5" height="8" rx="1" fill="white" opacity="0.8"/>
       </svg>
       <span>ScriptSnap</span>
+      <span style="color:var(--primary-light);font-size:13px;font-weight:700;background:rgba(231,76,60,0.15);padding:2px 8px;border-radius:6px;">자막뚝딱</span>
       <span class="badge-beta">BETA</span>
     </div>
     <button class="nav-bookmark" id="navBookmark">
@@ -924,10 +1173,110 @@
     </div>
   </section>
 
+  <!-- Rate Limit Modal -->
+  <div class="modal-overlay" id="rateLimitModal">
+    <div class="modal">
+      <div class="modal-icon">&#x1f6a7;</div>
+      <span class="modal-badge">PRO 버전 제작 중</span>
+      <h3>오늘의 무료 추출을 사용했습니다</h3>
+      <p>현재 하루 1회 무료 추출이 가능합니다.<br/>무제한 추출이 가능한 <strong>Pro 버전</strong>을 준비하고 있습니다!</p>
+      <button class="modal-close" id="modalClose">확인</button>
+    </div>
+  </div>
+
+  <!-- Developer Support -->
+  <section class="support-section">
+    <div class="support-card">
+      <h2>개발 의뢰 · 문의</h2>
+      <p>아래와 같은 프로젝트를 진행할 수 있습니다</p>
+      <div class="service-tags">
+        <span class="service-tag highlight">커스텀 프로젝트 극비 진행</span>
+        <span class="service-tag">웹사이트 제작</span>
+        <span class="service-tag">자동화 봇</span>
+        <span class="service-tag">데이터 수집</span>
+        <span class="service-tag">AI 연동 서비스</span>
+        <span class="service-tag">1:1 맞춤 개발</span>
+      </div>
+      <div class="support-actions">
+        <a class="support-item" id="emailContact" href="#">
+          <div class="support-icon">&#x2709;</div>
+          <span class="s-title">이메일 문의</span>
+          <span class="s-desc">클릭하면 메일이 열립니다</span>
+        </a>
+        <div class="support-item" id="giftToggle" style="cursor:pointer;">
+          <div class="support-icon">&#x1f381;</div>
+          <span class="s-title">기프티콘 보내기</span>
+          <span class="s-desc">이미지 첨부로 간편하게</span>
+        </div>
+        <a class="support-item" href="https://toss.me" target="_blank" rel="noopener">
+          <div class="support-icon">&#x1f4b0;</div>
+          <span class="s-title">후원하기</span>
+          <span class="s-desc">토스로 응원금 보내기</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- 기프티콘 이미지 업로드 -->
+    <div class="msg-form" id="giftForm" style="display:none;">
+      <h2>기프티콘 보내기</h2>
+      <p>미사용 기프티콘 이미지를 첨부해주세요. 사용하지 않은 기프티콘만 보내주세요!</p>
+      <div class="msg-field">
+        <label>
+          <input type="checkbox" id="giftUnused" />
+          이 기프티콘은 <strong>미사용</strong> 상태입니다
+        </label>
+      </div>
+      <div class="msg-field" id="giftUploadArea" style="display:none;">
+        <label>기프티콘 이미지</label>
+        <div id="giftDropzone" style="border:2px dashed var(--gray-200);border-radius:10px;padding:32px;text-align:center;cursor:pointer;transition:all 0.2s;">
+          <div style="font-size:32px;margin-bottom:8px;">&#x1f4f7;</div>
+          <div style="font-size:13px;color:var(--gray-600);">클릭하거나 이미지를 드래그하세요</div>
+          <div style="font-size:11px;color:var(--gray-400);margin-top:4px;">JPG, PNG, WEBP (최대 5MB)</div>
+          <input type="file" id="giftFile" accept="image/*" style="display:none;" />
+        </div>
+        <div id="giftPreview" style="display:none;margin-top:12px;text-align:center;">
+          <img id="giftPreviewImg" style="max-width:100%;max-height:300px;border-radius:8px;border:1px solid var(--gray-200);" />
+          <button id="giftRemove" style="display:block;margin:8px auto 0;background:none;border:none;color:var(--primary);font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;">이미지 제거</button>
+        </div>
+      </div>
+      <div class="msg-field" id="giftNameField" style="display:none;">
+        <label>보내는 분 (선택)</label>
+        <input type="text" class="msg-input" id="giftName" placeholder="익명" maxlength="50" />
+      </div>
+      <button class="msg-send" id="giftSend" style="display:none;">기프티콘 전송</button>
+      <div class="msg-result" id="giftResult"></div>
+    </div>
+
+    <!-- 개발자 쪽지 -->
+    <div class="msg-form">
+      <h2>개발자에게 직접 연락하기</h2>
+      <p style="line-height:1.8;">
+        <strong style="color:var(--primary);">완전 극비 커스텀 프로젝트</strong> 진행 가능합니다.<br/>
+        아이디어만 있으면 됩니다. NDA(비밀유지계약) 체결 가능.<br/>
+        외부에 절대 노출되지 않는 <strong>1:1 비공개 개발</strong>을 원하시면 연락주세요.
+      </p>
+      <div class="msg-field">
+        <label>이메일 <span style="color:var(--primary);">*필수</span></label>
+        <input type="email" class="msg-input" id="msgEmail" placeholder="답변받으실 이메일을 입력해주세요" required />
+      </div>
+      <div class="msg-field">
+        <label>이름 (선택)</label>
+        <input type="text" class="msg-input" id="msgName" placeholder="익명" maxlength="50" />
+      </div>
+      <div class="msg-field">
+        <label>메시지</label>
+        <textarea class="msg-textarea" id="msgText" placeholder="프로젝트 설명, 문의사항, 응원 등 자유롭게 적어주세요..." maxlength="2000"></textarea>
+      </div>
+      <button class="msg-send" id="msgSend">쪽지 보내기</button>
+      <div class="msg-result" id="msgResult"></div>
+    </div>
+  </section>
+
   <!-- Footer -->
   <footer class="footer">
     <p>ScriptSnap &copy; 2026 &middot; 유튜브 자막 추출 · 대본 복사 · 영상 요약 서비스</p>
     <p style="margin-top:4px;">유튜브 자막 추출기 | 유튜브 대본 뽑기 | 유튜브 스크립트 복사 | 숏츠 대본 만들기</p>
+    <p style="margin-top:12px;font-size:10px;color:#ccc;letter-spacing:-0.2px;">이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다</p>
   </footer>
 
   <script>
@@ -977,10 +1326,39 @@
       alert('Ctrl+D (Mac: ⌘+D)를 눌러 즐겨찾기에 추가하세요!');
     });
 
+    // ─── 하루 1회 제한 ─────────────────────────────
+    const RATE_KEY = 'scriptsnap_last_extract';
+    const rateLimitModal = document.getElementById('rateLimitModal');
+    const modalClose = document.getElementById('modalClose');
+
+    function isRateLimited() {
+      const last = localStorage.getItem(RATE_KEY);
+      if (!last) return false;
+      const today = new Date().toDateString();
+      return last === today;
+    }
+
+    function markUsed() {
+      localStorage.setItem(RATE_KEY, new Date().toDateString());
+    }
+
+    modalClose.addEventListener('click', () => {
+      rateLimitModal.classList.remove('show');
+    });
+    rateLimitModal.addEventListener('click', (e) => {
+      if (e.target === rateLimitModal) rateLimitModal.classList.remove('show');
+    });
+
     // ─── 쿠팡 제휴링크 ──────────────────────────────
     const COUPANG_URL = 'https://link.coupang.com/a/902ddf93-7cfe-4c1a-8533-ad11797d848b/cd5794799233ddbf5fd670d6e86601a7c78616be';
 
     extractBtn.addEventListener('click', async () => {
+      // 하루 1회 제한 체크
+      if (isRateLimited()) {
+        rateLimitModal.classList.add('show');
+        return;
+      }
+
       // 쿠팡 제휴링크 새 탭으로 열기
       window.open(COUPANG_URL, '_blank', 'noopener');
 
@@ -1013,6 +1391,11 @@
 
         const data = await res.json();
 
+        if (res.status === 429) {
+          markUsed();
+          rateLimitModal.classList.add('show');
+          return;
+        }
         if (!res.ok) {
           throw new Error(data.error || '추출에 실패했습니다.');
         }
@@ -1027,6 +1410,7 @@
 
         resultSection.classList.add('show');
         resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        markUsed(); // 성공 시 사용 기록
       } catch (err) {
         showError(err.message);
       } finally {
@@ -1084,6 +1468,189 @@
     function hideError() {
       errorMsg.classList.remove('show');
     }
+
+    // ─── 이메일 (난독화) ─────────────────────────────
+    const _e = ['s2olll','27','@','gm','ail','.com'];
+    document.getElementById('emailContact').addEventListener('click', (e) => {
+      e.preventDefault();
+      location.href = 'mailto:' + _e.join('');
+    });
+
+    // ─── 기프티콘 업로드 ────────────────────────────
+    const giftToggle = document.getElementById('giftToggle');
+    const giftForm = document.getElementById('giftForm');
+    const giftUnused = document.getElementById('giftUnused');
+    const giftUploadArea = document.getElementById('giftUploadArea');
+    const giftNameField = document.getElementById('giftNameField');
+    const giftDropzone = document.getElementById('giftDropzone');
+    const giftFile = document.getElementById('giftFile');
+    const giftPreview = document.getElementById('giftPreview');
+    const giftPreviewImg = document.getElementById('giftPreviewImg');
+    const giftRemove = document.getElementById('giftRemove');
+    const giftSend = document.getElementById('giftSend');
+    const giftResult = document.getElementById('giftResult');
+    let giftBase64 = null;
+
+    giftToggle.addEventListener('click', () => {
+      giftForm.style.display = giftForm.style.display === 'none' ? '' : 'none';
+      if (giftForm.style.display !== 'none') {
+        giftForm.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    });
+
+    giftUnused.addEventListener('change', () => {
+      const show = giftUnused.checked;
+      giftUploadArea.style.display = show ? '' : 'none';
+      giftNameField.style.display = show ? '' : 'none';
+      giftSend.style.display = show ? '' : 'none';
+    });
+
+    giftDropzone.addEventListener('click', () => giftFile.click());
+    giftDropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      giftDropzone.style.borderColor = 'var(--primary)';
+      giftDropzone.style.background = '#FFF5F5';
+    });
+    giftDropzone.addEventListener('dragleave', () => {
+      giftDropzone.style.borderColor = 'var(--gray-200)';
+      giftDropzone.style.background = '';
+    });
+    giftDropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      giftDropzone.style.borderColor = 'var(--gray-200)';
+      giftDropzone.style.background = '';
+      if (e.dataTransfer.files[0]) handleGiftFile(e.dataTransfer.files[0]);
+    });
+    giftFile.addEventListener('change', () => {
+      if (giftFile.files[0]) handleGiftFile(giftFile.files[0]);
+    });
+    giftRemove.addEventListener('click', () => {
+      giftBase64 = null;
+      giftPreview.style.display = 'none';
+      giftDropzone.style.display = '';
+      giftFile.value = '';
+    });
+
+    function handleGiftFile(file) {
+      if (!file.type.startsWith('image/')) {
+        giftResult.className = 'msg-result error';
+        giftResult.textContent = '이미지 파일만 첨부 가능합니다.';
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        giftResult.className = 'msg-result error';
+        giftResult.textContent = '5MB 이하 이미지만 가능합니다.';
+        return;
+      }
+      giftResult.className = 'msg-result';
+      giftResult.style.display = 'none';
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        giftBase64 = reader.result;
+        giftPreviewImg.src = giftBase64;
+        giftPreview.style.display = '';
+        giftDropzone.style.display = 'none';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    giftSend.addEventListener('click', async () => {
+      if (!giftBase64) {
+        giftResult.className = 'msg-result error';
+        giftResult.textContent = '기프티콘 이미지를 첨부해주세요.';
+        return;
+      }
+      giftSend.disabled = true;
+      giftSend.textContent = '전송 중...';
+      giftResult.className = 'msg-result';
+      giftResult.style.display = 'none';
+
+      try {
+        const res = await fetch('/api/gift', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: document.getElementById('giftName').value.trim(),
+            image: giftBase64,
+          }),
+        });
+        if (!res.ok) throw new Error();
+
+        giftResult.className = 'msg-result success';
+        giftResult.textContent = '기프티콘이 전송되었습니다! 감사합니다 :)';
+        giftBase64 = null;
+        giftPreview.style.display = 'none';
+        giftDropzone.style.display = '';
+        giftFile.value = '';
+        document.getElementById('giftName').value = '';
+        giftUnused.checked = false;
+        giftUploadArea.style.display = 'none';
+        giftNameField.style.display = 'none';
+        giftSend.style.display = 'none';
+      } catch {
+        giftResult.className = 'msg-result error';
+        giftResult.textContent = '전송에 실패했습니다.';
+      } finally {
+        giftSend.disabled = false;
+        giftSend.textContent = '기프티콘 전송';
+      }
+    });
+
+    // ─── 쪽지 보내기 ──────────────────────────────────
+    const msgEmail = document.getElementById('msgEmail');
+    const msgName = document.getElementById('msgName');
+    const msgText = document.getElementById('msgText');
+    const msgSend = document.getElementById('msgSend');
+    const msgResult = document.getElementById('msgResult');
+
+    msgSend.addEventListener('click', async () => {
+      const email = msgEmail.value.trim();
+      if (!email) {
+        msgResult.className = 'msg-result error';
+        msgResult.textContent = '이메일을 입력해주세요.';
+        msgEmail.focus();
+        return;
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        msgResult.className = 'msg-result error';
+        msgResult.textContent = '올바른 이메일 형식을 입력해주세요.';
+        msgEmail.focus();
+        return;
+      }
+      const message = msgText.value.trim();
+      if (!message) {
+        msgResult.className = 'msg-result error';
+        msgResult.textContent = '메시지를 입력해주세요.';
+        return;
+      }
+
+      msgSend.disabled = true;
+      msgSend.textContent = '전송 중...';
+      msgResult.className = 'msg-result';
+      msgResult.style.display = 'none';
+
+      try {
+        const res = await fetch('/api/message', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, name: msgName.value.trim(), message }),
+        });
+        if (!res.ok) throw new Error('전송 실패');
+
+        msgResult.className = 'msg-result success';
+        msgResult.textContent = '쪽지가 전송되었습니다! 빠른 시일 내 답변드리겠습니다.';
+        msgEmail.value = '';
+        msgName.value = '';
+        msgText.value = '';
+      } catch {
+        msgResult.className = 'msg-result error';
+        msgResult.textContent = '전송에 실패했습니다. 이메일로 직접 연락해주세요.';
+      } finally {
+        msgSend.disabled = false;
+        msgSend.textContent = '쪽지 보내기';
+      }
+    });
 
     // ─── FAQ 토글 ────────────────────────────────────
     document.querySelectorAll('.faq-q').forEach(q => {
