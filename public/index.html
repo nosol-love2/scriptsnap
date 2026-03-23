@@ -762,8 +762,8 @@
       <span>한국어 · 영어</span>
     </div>
     <div class="stat-item">
-      <div class="stat-icon">4</div>
-      <span>4가지 모드</span>
+      <div class="stat-icon">!</div>
+      <span>회원가입 불필요</span>
     </div>
   </div>
 
@@ -811,8 +811,8 @@
         </div>
       </div>
 
-      <!-- Mode Selection -->
-      <div class="mode-group">
+      <!-- Mode Selection (admin만 보임) -->
+      <div class="mode-group" id="modeGroup" style="display:none;">
         <label>추출 모드 선택</label>
         <div class="mode-buttons">
           <button class="mode-btn active" data-mode="raw">
@@ -991,6 +991,12 @@
   <script>
     // ─── State ────────────────────────────────────
     let selectedMode = 'raw';
+    const isAdmin = new URLSearchParams(location.search).get('admin') === '1';
+
+    // admin이면 모드 선택 표시
+    if (isAdmin) {
+      document.getElementById('modeGroup').style.display = '';
+    }
 
     // ─── Mode Selection ──────────────────────────
     const modeBtns = document.querySelectorAll('.mode-btn');
