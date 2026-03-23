@@ -1,3 +1,3 @@
 User-agent: *
 Allow: /
-Sitemap: https://scriptsnap.vercel.app/sitemap.xml
+Sitemap: https://scriptsnap-seven.vercel.app/sitemap.xml
