@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ScriptSnap Admin Dashboard</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #0f1117;
+      color: #e4e4e7;
+      min-height: 100vh;
+    }
+
+    /* ─── Header ──────────────────────────── */
+    .header {
+      background: #1a1b23;
+      border-bottom: 1px solid #27272a;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .header h1 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .header h1 span { color: #ef4444; }
+    .header-link {
+      color: #71717a;
+      text-decoration: none;
+      font-size: 13px;
+    }
+    .header-link:hover { color: #a1a1aa; }
+
+    /* ─── Container ───────────────────────── */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px 20px;
+    }
+
+    /* ─── Auth Gate ────────────────────────── */
+    .auth-gate {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 60vh;
+      font-size: 16px;
+      color: #71717a;
+    }
+
+    /* ─── Summary Cards ───────────────────── */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .card {
+      background: #1a1b23;
+      border: 1px solid #27272a;
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .card-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: #71717a;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    .card-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .card-sub {
+      font-size: 12px;
+      color: #52525b;
+      margin-top: 4px;
+    }
+
+    /* ─── Sections ────────────────────────── */
+    .section {
+      background: #1a1b23;
+      border: 1px solid #27272a;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .section-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ─── Revenue Section ─────────────────── */
+    .revenue-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .rev-card {
+      background: #0f1117;
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+    }
+    .rev-card-label {
+      font-size: 11px;
+      color: #71717a;
+      margin-bottom: 6px;
+    }
+    .rev-card-value {
+      font-size: 22px;
+      font-weight: 700;
+    }
+    .rev-income { color: #22c55e; }
+    .rev-cost { color: #ef4444; }
+    .rev-profit { color: #3b82f6; }
+
+    /* ─── Sync Button ────────────────────── */
+    .sync-btn {
+      background: #7c3aed;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .sync-btn:hover { background: #6d28d9; }
+    .sync-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .sync-status {
+      font-size: 12px;
+      color: #71717a;
+      margin-left: 12px;
+    }
+    .sync-status.success { color: #22c55e; }
+    .sync-status.error { color: #ef4444; }
+
+    /* ─── Revenue Form ────────────────────── */
+    .rev-form {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+    .rev-form label {
+      font-size: 11px;
+      color: #71717a;
+      display: block;
+      margin-bottom: 4px;
+    }
+    .rev-form input, .rev-form select {
+      background: #0f1117;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      color: #e4e4e7;
+      padding: 8px 10px;
+      font-size: 13px;
+      font-family: inherit;
+    }
+    .rev-form input:focus, .rev-form select:focus {
+      outline: none;
+      border-color: #3b82f6;
+    }
+    .rev-form button {
+      background: #3b82f6;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .rev-form button:hover { background: #2563eb; }
+
+    /* ─── Table ────────────────────────────── */
+    .table-wrap {
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    th {
+      text-align: left;
+      font-weight: 600;
+      color: #71717a;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 8px 12px;
+      border-bottom: 1px solid #27272a;
+    }
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #1e1e26;
+      color: #a1a1aa;
+    }
+    tr:hover td { background: #15161e; }
+    .num { text-align: right; font-variant-numeric: tabular-nums; }
+
+    /* ─── Messages ─────────────────────────── */
+    .msg-item {
+      padding: 12px;
+      background: #0f1117;
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+    .msg-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    .msg-name {
+      font-weight: 600;
+      font-size: 13px;
+      color: #fff;
+    }
+    .msg-time {
+      font-size: 11px;
+      color: #52525b;
+    }
+    .msg-email {
+      font-size: 11px;
+      color: #3b82f6;
+      margin-bottom: 4px;
+    }
+    .msg-body {
+      font-size: 13px;
+      color: #a1a1aa;
+      line-height: 1.5;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: #52525b;
+      font-size: 13px;
+    }
+
+    /* ─── Tabs ──────────────────────────────── */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 16px;
+    }
+    .tab {
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 500;
+      border-radius: 6px;
+      cursor: pointer;
+      border: 1px solid #27272a;
+      background: transparent;
+      color: #71717a;
+      font-family: inherit;
+    }
+    .tab.active {
+      background: #27272a;
+      color: #fff;
+      border-color: #3f3f46;
+    }
+
+    @media (max-width: 640px) {
+      .cards { grid-template-columns: repeat(2, 1fr); }
+      .revenue-grid { grid-template-columns: 1fr; }
+      .rev-form { flex-direction: column; }
+      .rev-form > div { width: 100%; }
+      .rev-form input, .rev-form select { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1><span>Script</span>Snap Admin</h1>
+    <a href="/" class="header-link">&#8592; 메인으로</a>
+  </div>
+
+  <div class="container" id="app">
+    <div class="auth-gate" id="authGate">접근 권한이 없습니다.</div>
+  </div>
+
+  <script>
+  (async function() {
+    const app = document.getElementById('app');
+    const authGate = document.getElementById('authGate');
+
+    // IP 기반 인증 체크
+    try {
+      const checkRes = await fetch('/api/admin-check');
+      if (!checkRes.ok) return; // 403 → 게이트 유지
+    } catch {
+      return;
+    }
+
+    authGate.style.display = 'none';
+
+    // ─── Render skeleton ─────────────────────────
+    app.innerHTML = `
+      <!-- Summary Cards -->
+      <div class="cards">
+        <div class="card">
+          <div class="card-label">오늘 방문자</div>
+          <div class="card-value" id="cVisitors">-</div>
+          <div class="card-sub" id="cVisitorsSub">고유 IP 기준</div>
+        </div>
+        <div class="card">
+          <div class="card-label">오늘 추출</div>
+          <div class="card-value" id="cExtractions">-</div>
+          <div class="card-sub">자막 추출 성공 수</div>
+        </div>
+        <div class="card">
+          <div class="card-label">쿠팡 클릭</div>
+          <div class="card-value" id="cCoupang">-</div>
+          <div class="card-sub">구경하기 클릭 수</div>
+        </div>
+        <div class="card">
+          <div class="card-label">전환율</div>
+          <div class="card-value" id="cConversion">-</div>
+          <div class="card-sub">클릭 / 방문자</div>
+        </div>
+      </div>
+
+      <!-- Revenue Section -->
+      <div class="section">
+        <div class="section-title">
+          수익 / 비용 (이번 달)
+          <button class="sync-btn" id="syncBtn" onclick="syncRevenue()">수익 동기화</button>
+          <span class="sync-status" id="syncStatus"></span>
+        </div>
+        <div class="revenue-grid">
+          <div class="rev-card">
+            <div class="rev-card-label">쿠팡 수익</div>
+            <div class="rev-card-value rev-income" id="revIncome">0원</div>
+          </div>
+          <div class="rev-card">
+            <div class="rev-card-label">호스팅 비용</div>
+            <div class="rev-card-value rev-cost" id="revCost">0원</div>
+          </div>
+          <div class="rev-card">
+            <div class="rev-card-label">순이익</div>
+            <div class="rev-card-value rev-profit" id="revProfit">0원</div>
+          </div>
+        </div>
+        <div class="rev-form" id="revForm">
+          <div>
+            <label>날짜</label>
+            <input type="date" id="revDate" />
+          </div>
+          <div>
+            <label>유형</label>
+            <select id="revType">
+              <option value="coupang">쿠팡 수익</option>
+              <option value="hosting">호스팅 비용</option>
+              <option value="other">기타</option>
+            </select>
+          </div>
+          <div>
+            <label>금액 (원)</label>
+            <input type="number" id="revAmount" placeholder="10000" />
+          </div>
+          <div>
+            <label>메모</label>
+            <input type="text" id="revNote" placeholder="선택사항" />
+          </div>
+          <button id="revSubmit">입력</button>
+        </div>
+      </div>
+
+      <!-- Daily Trends -->
+      <div class="section">
+        <div class="section-title">일별 추이 (최근 30일)</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>날짜</th>
+                <th class="num">방문</th>
+                <th class="num">고유IP</th>
+                <th class="num">추출</th>
+                <th class="num">쿠팡클릭</th>
+                <th class="num">수익(원)</th>
+              </tr>
+            </thead>
+            <tbody id="trendBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Messages & Gifts -->
+      <div class="section">
+        <div class="section-title">쪽지 / 기프티콘</div>
+        <div class="tabs">
+          <button class="tab active" data-tab="messages">쪽지</button>
+          <button class="tab" data-tab="gifts">기프티콘</button>
+        </div>
+        <div id="messagesTab"></div>
+        <div id="giftsTab" style="display:none;"></div>
+      </div>
+    `;
+
+    // ─── State ───────────────────────────────────
+    let analyticsData = {};
+    let revenueData = [];
+
+    // ─── Fetch all data ──────────────────────────
+    async function loadAll() {
+      const [aRes, rRes, mRes] = await Promise.all([
+        fetch('/api/analytics'),
+        fetch('/api/revenue'),
+        fetch('/api/messages'),
+      ]);
+      analyticsData = await aRes.json();
+      revenueData = await rRes.json();
+      const msgData = await mRes.json();
+      renderCards();
+      renderRevenue();
+      renderTrends();
+      renderMessages(msgData.messages || []);
+      renderGifts(msgData.gifts || []);
+    }
+
+    // ─── Render: Summary Cards ───────────────────
+    function renderCards() {
+      const today = new Date().toISOString().slice(0, 10);
+      const d = analyticsData[today] || {};
+      const visitors = d.uniqueIPs || 0;
+      const extractions = d.extractions || 0;
+      const coupang = d.coupangClicks || 0;
+      const pageViews = d.pageViews || 0;
+      const rate = visitors > 0 ? ((coupang / visitors) * 100).toFixed(1) + '%' : '0%';
+
+      document.getElementById('cVisitors').textContent = visitors.toLocaleString();
+      document.getElementById('cVisitorsSub').textContent = `페이지뷰 ${pageViews.toLocaleString()}`;
+      document.getElementById('cExtractions').textContent = extractions.toLocaleString();
+      document.getElementById('cCoupang').textContent = coupang.toLocaleString();
+      document.getElementById('cConversion').textContent = rate;
+    }
+
+    // ─── Render: Revenue ─────────────────────────
+    function renderRevenue() {
+      const now = new Date();
+      const month = now.toISOString().slice(0, 7); // YYYY-MM
+      const thisMonth = revenueData.filter(r => r.date && r.date.startsWith(month));
+
+      let income = 0, cost = 0;
+      thisMonth.forEach(r => {
+        if (r.type === 'coupang' || r.type === 'other') income += r.amount;
+        else if (r.type === 'hosting') cost += r.amount;
+      });
+      const profit = income - cost;
+
+      document.getElementById('revIncome').textContent = income.toLocaleString() + '원';
+      document.getElementById('revCost').textContent = cost.toLocaleString() + '원';
+      const profitEl = document.getElementById('revProfit');
+      profitEl.textContent = (profit >= 0 ? '+' : '') + profit.toLocaleString() + '원';
+      profitEl.className = 'rev-card-value ' + (profit >= 0 ? 'rev-income' : 'rev-cost');
+    }
+
+    // ─── Render: Daily Trends ────────────────────
+    function renderTrends() {
+      const tbody = document.getElementById('trendBody');
+      const dates = [];
+      for (let i = 0; i < 30; i++) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        dates.push(d.toISOString().slice(0, 10));
+      }
+
+      // revenue lookup by date
+      const revByDate = {};
+      revenueData.forEach(r => {
+        if (!revByDate[r.date]) revByDate[r.date] = 0;
+        if (r.type === 'coupang' || r.type === 'other') revByDate[r.date] += r.amount;
+        else if (r.type === 'hosting') revByDate[r.date] -= r.amount;
+      });
+
+      tbody.innerHTML = dates.map(date => {
+        const d = analyticsData[date] || {};
+        const rev = revByDate[date] || 0;
+        return `<tr>
+          <td>${date}</td>
+          <td class="num">${(d.pageViews || 0).toLocaleString()}</td>
+          <td class="num">${(d.uniqueIPs || 0).toLocaleString()}</td>
+          <td class="num">${(d.extractions || 0).toLocaleString()}</td>
+          <td class="num">${(d.coupangClicks || 0).toLocaleString()}</td>
+          <td class="num" style="color:${rev >= 0 ? '#22c55e' : '#ef4444'}">${rev.toLocaleString()}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    // ─── Render: Messages ────────────────────────
+    function renderMessages(messages) {
+      const el = document.getElementById('messagesTab');
+      if (!messages.length) {
+        el.innerHTML = '<div class="empty-state">수신된 쪽지가 없습니다.</div>';
+        return;
+      }
+      el.innerHTML = messages.slice().reverse().map(m => `
+        <div class="msg-item">
+          <div class="msg-header">
+            <span class="msg-name">${esc(m.name || '익명')}</span>
+            <span class="msg-time">${formatTime(m.time)}</span>
+          </div>
+          <div class="msg-email">${esc(m.email)}</div>
+          <div class="msg-body">${esc(m.message)}</div>
+        </div>
+      `).join('');
+    }
+
+    // ─── Render: Gifts ───────────────────────────
+    function renderGifts(gifts) {
+      const el = document.getElementById('giftsTab');
+      if (!gifts.length) {
+        el.innerHTML = '<div class="empty-state">수신된 기프티콘이 없습니다.</div>';
+        return;
+      }
+      el.innerHTML = gifts.slice().reverse().map(g => `
+        <div class="msg-item">
+          <div class="msg-header">
+            <span class="msg-name">${esc(g.name || '익명')}</span>
+            <span class="msg-time">${formatTime(g.time)}</span>
+          </div>
+          ${g.file ? `<img src="/api/gifts/${esc(g.file)}" style="max-width:200px;border-radius:8px;margin-top:8px;" />` : ''}
+        </div>
+      `).join('');
+    }
+
+    // ─── Tab switching ───────────────────────────
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        const target = tab.dataset.tab;
+        document.getElementById('messagesTab').style.display = target === 'messages' ? '' : 'none';
+        document.getElementById('giftsTab').style.display = target === 'gifts' ? '' : 'none';
+      });
+    });
+
+    // ─── Revenue Form ────────────────────────────
+    document.getElementById('revDate').value = new Date().toISOString().slice(0, 10);
+    document.getElementById('revSubmit').addEventListener('click', async () => {
+      const date = document.getElementById('revDate').value;
+      const type = document.getElementById('revType').value;
+      const amount = Number(document.getElementById('revAmount').value);
+      const note = document.getElementById('revNote').value;
+
+      if (!date || !amount) return alert('날짜와 금액을 입력해주세요.');
+
+      const btn = document.getElementById('revSubmit');
+      btn.disabled = true;
+      btn.textContent = '저장 중...';
+
+      try {
+        const res = await fetch('/api/revenue', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ date, type, amount, note }),
+        });
+        if (!res.ok) throw new Error();
+        revenueData.push({ date, type, amount, note, time: new Date().toISOString() });
+        renderRevenue();
+        renderTrends();
+        document.getElementById('revAmount').value = '';
+        document.getElementById('revNote').value = '';
+      } catch {
+        alert('저장에 실패했습니다.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '입력';
+      }
+    });
+
+    // ─── Sync Revenue ───────────────────────────────
+    window.syncRevenue = async function() {
+      const btn = document.getElementById('syncBtn');
+      const status = document.getElementById('syncStatus');
+      btn.disabled = true;
+      btn.textContent = '동기화 중...';
+      status.textContent = '';
+      status.className = 'sync-status';
+
+      try {
+        const res = await fetch('/api/sync-revenue', { method: 'POST' });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || '동기화 실패');
+
+        status.textContent = data.message || '동기화 완료';
+        status.className = 'sync-status success';
+
+        // 데이터 갱신
+        const rRes = await fetch('/api/revenue');
+        if (rRes.ok) {
+          revenueData = await rRes.json();
+          renderRevenue();
+          renderTrends();
+        }
+      } catch (err) {
+        status.textContent = err.message;
+        status.className = 'sync-status error';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '수익 동기화';
+      }
+    };
+
+    // ─── Helpers ─────────────────────────────────
+    function esc(s) {
+      const div = document.createElement('div');
+      div.textContent = s || '';
+      return div.innerHTML;
+    }
+
+    function formatTime(iso) {
+      if (!iso) return '';
+      const d = new Date(iso);
+      return d.toLocaleDateString('ko-KR') + ' ' + d.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    // ─── Init ────────────────────────────────────
+    loadAll();
+  })();
+  </script>
+</body>
+</html>

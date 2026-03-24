@@ -1655,6 +1655,26 @@
         q.parentElement.classList.toggle('open');
       });
     });
+
+    // ─── Analytics 트래킹 ───────────────────────────
+    // 페이지뷰 트래킹
+    fetch('/api/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'pageview' }),
+    }).catch(() => {});
+
+    // 쿠팡 클릭 트래킹
+    const adLink = document.getElementById('adLink');
+    if (adLink) {
+      adLink.addEventListener('click', () => {
+        fetch('/api/track', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'coupang' }),
+        }).catch(() => {});
+      });
+    }
   </script>
 </body>
 </html>
