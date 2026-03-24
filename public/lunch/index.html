@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>오늘 뭐 먹지? | 점심 메뉴 추천 🍱</title>
+  <meta name="description" content="점심 메뉴 고민 해결! 기분, 예산, 인원수에 맞는 메뉴를 추천해드려요.">
+  <meta name="keywords" content="점심메뉴추천, 오늘뭐먹지, 점심뭐먹지, 메뉴추천, 랜덤메뉴, 점심유형테스트">
+  <meta property="og:title" content="오늘 뭐 먹지? | 나의 점심 유형 테스트">
+  <meta property="og:description" content="나의 점심 유형은? 6가지 취향으로 알아보는 오늘의 완벽 메뉴!">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+  <style>
+    :root {
+      --bg: #F5F5F5;
+      --card: #FFFFFF;
+      --text: #191F28;
+      --text2: #4E5968;
+      --text3: #8B95A1;
+      --text4: #B0B8C1;
+      --border: #F2F3F5;
+      --blue: #3182F6;
+      --blue-bg: #EBF3FE;
+      --blue-light: #DCEAFE;
+      --orange: #FF6B35;
+      --red: #F04452;
+      --green: #30B06E;
+      --r: 16px;
+      --r-sm: 12px;
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    body {
+      font-family: 'Noto Sans KR', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      min-height: 100dvh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ════════════════════════════════════════
+       레이아웃
+    ════════════════════════════════════════ */
+    .app {
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      background: var(--card);
+    }
+
+    /* ════════════════════════════════════════
+       네비게이션 바
+    ════════════════════════════════════════ */
+    .nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      padding: 0 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-inner {
+      height: 56px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-back {
+      width: 32px; height: 32px; border: none; background: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; color: var(--text); opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .nav-back.show { opacity: 1; }
+    .nav-title { font-size: 16px; font-weight: 700; }
+    .nav-right { width: 32px; }
+
+    /* 프로그레스 */
+    .progress {
+      height: 3px; background: var(--border);
+    }
+    .progress-bar {
+      height: 100%; background: var(--blue);
+      transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 0 2px 2px 0;
+    }
+
+    /* ════════════════════════════════════════
+       광고 슬롯
+    ════════════════════════════════════════ */
+    .ad-slot { min-height: 50px; padding: 0 20px; }
+
+    /* ════════════════════════════════════════
+       화면 (각 스텝)
+    ════════════════════════════════════════ */
+    .screen {
+      flex: 1; display: none; flex-direction: column;
+      padding: 0 20px;
+      animation: fadeIn 0.35s ease-out;
+    }
+    .screen.active { display: flex; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: none; }
+    }
+
+    /* ── 인트로 ── */
+    .intro { padding-top: 60px; text-align: center; }
+    .intro-icon { font-size: 64px; margin-bottom: 20px; }
+    .intro h2 {
+      font-size: 26px; font-weight: 900; line-height: 1.4;
+      letter-spacing: -0.5px;
+    }
+    .intro p {
+      font-size: 15px; color: var(--text2); margin-top: 10px; line-height: 1.6;
+    }
+    .intro-stats {
+      display: flex; justify-content: center; gap: 24px;
+      margin-top: 28px; padding: 20px; border-radius: var(--r);
+      background: var(--border);
+    }
+    .intro-stat { text-align: center; }
+    .intro-stat-val { font-size: 22px; font-weight: 900; color: var(--blue); }
+    .intro-stat-label { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+    .bottom-area {
+      padding: 12px 20px calc(16px + var(--safe-bottom));
+      margin-top: auto;
+    }
+    .btn-primary {
+      width: 100%; height: 54px; border: none; border-radius: var(--r);
+      background: var(--blue); color: #fff;
+      font-size: 16px; font-weight: 700;
+      font-family: 'Noto Sans KR', sans-serif;
+      cursor: pointer; transition: background 0.15s, transform 0.1s;
+    }
+    .btn-primary:active { transform: scale(0.98); }
+    .btn-primary:disabled { background: var(--text4); cursor: default; }
+
+    /* ── 질문 화면 ── */
+    .q-header { padding-top: 32px; }
+    .q-step { font-size: 13px; font-weight: 700; color: var(--blue); margin-bottom: 8px; }
+    .q-title { font-size: 22px; font-weight: 900; line-height: 1.4; letter-spacing: -0.5px; }
+    .q-sub { font-size: 14px; color: var(--text3); margin-top: 6px; }
+
+    .q-options {
+      margin-top: 24px; display: flex; flex-direction: column; gap: 10px;
+    }
+    .q-opt {
+      display: flex; align-items: center; gap: 14px;
+      padding: 16px 18px; border-radius: var(--r);
+      border: 1.5px solid var(--border); background: var(--card);
+      cursor: pointer; transition: all 0.2s;
+      font-family: 'Noto Sans KR', sans-serif; text-align: left;
+    }
+    .q-opt:hover { border-color: #D8DEE5; background: #FAFBFC; }
+    .q-opt:active { transform: scale(0.98); }
+    .q-opt.selected {
+      border-color: var(--blue); background: var(--blue-bg);
+    }
+    .q-opt .qo-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; background: var(--border); flex-shrink: 0;
+      transition: background 0.2s;
+    }
+    .q-opt.selected .qo-icon { background: var(--blue-light); }
+    .q-opt .qo-text { flex: 1; }
+    .q-opt .qo-label { font-size: 15px; font-weight: 700; color: var(--text); }
+    .q-opt .qo-desc { font-size: 12px; color: var(--text3); margin-top: 1px; }
+    .q-opt .qo-check {
+      width: 22px; height: 22px; border-radius: 50%;
+      border: 2px solid var(--text4); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s; font-size: 12px; color: transparent;
+    }
+    .q-opt.selected .qo-check {
+      border-color: var(--blue); background: var(--blue); color: #fff;
+    }
+
+    /* 상관없어 옵션 */
+    .q-skip {
+      display: flex; align-items: center; justify-content: center;
+      gap: 6px; padding: 14px;
+      border: 1.5px dashed var(--border); border-radius: var(--r);
+      background: none; cursor: pointer; font-family: 'Noto Sans KR', sans-serif;
+      font-size: 14px; color: var(--text3); font-weight: 500;
+      transition: all 0.2s; margin-top: 2px;
+    }
+    .q-skip:hover { border-color: var(--text4); color: var(--text2); }
+    .q-skip.selected { border-color: var(--blue); color: var(--blue); background: var(--blue-bg); border-style: solid; }
+
+    /* ── 분석 중 (로딩 + 쿠팡) ── */
+    .loading-screen { align-items: center; justify-content: center; text-align: center; padding-top: 80px; }
+    .loader-ring {
+      width: 56px; height: 56px; border: 4px solid var(--border);
+      border-top-color: var(--blue); border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loader-emoji {
+      font-size: 40px; margin-top: -48px; margin-bottom: 8px;
+      animation: bounce 0.6s ease infinite alternate;
+    }
+    @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-6px); } }
+    .loader-msg { font-size: 16px; font-weight: 700; margin-top: 20px; }
+    .loader-sub { font-size: 13px; color: var(--text3); margin-top: 6px; }
+    .loader-percent { font-size: 32px; font-weight: 900; color: var(--blue); margin-top: 16px; }
+
+    /* 로딩 중 쿠팡 */
+    .load-cpg {
+      margin-top: 40px; padding: 0 20px; width: 100%;
+    }
+    .load-cpg-label { font-size: 12px; color: var(--text3); margin-bottom: 10px; }
+    .load-cpg-cards { display: flex; flex-direction: column; gap: 8px; }
+    .load-cpg-card {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 16px; border-radius: var(--r-sm);
+      background: var(--border); text-decoration: none; color: var(--text);
+      transition: background 0.15s;
+    }
+    .load-cpg-card:active { background: #E8EAED; }
+    .lcc-icon { font-size: 20px; }
+    .lcc-text { flex: 1; font-size: 13px; font-weight: 600; }
+    .lcc-arrow { font-size: 14px; color: var(--text4); }
+    .load-cpg-notice { font-size: 9px; color: var(--text4); margin-top: 8px; text-align: center; }
+
+    /* ── 결과 화면 ── */
+    .result-screen { padding: 0; }
+
+    /* 유형 히어로 */
+    .type-hero {
+      position: relative; padding: 48px 24px 36px;
+      text-align: center; color: #fff; overflow: hidden;
+    }
+    .type-hero canvas { position: absolute; inset: 0; z-index: 0; }
+    .type-hero > * { position: relative; z-index: 1; }
+    .th-badge {
+      display: inline-block; padding: 5px 14px; border-radius: 20px;
+      background: rgba(255,255,255,0.2); backdrop-filter: blur(4px);
+      font-size: 12px; font-weight: 700;
+    }
+    .th-emoji { font-size: 80px; margin: 20px 0 12px; }
+    .th-name { font-size: 26px; font-weight: 900; letter-spacing: -0.5px; }
+    .th-title { font-size: 15px; opacity: 0.85; margin-top: 6px; }
+    .th-desc {
+      margin-top: 16px; font-size: 14px; line-height: 1.6; opacity: 0.9;
+      background: rgba(255,255,255,0.12); border-radius: 14px; padding: 14px 18px;
+    }
+
+    .th-metrics {
+      display: flex; justify-content: center; gap: 12px; margin-top: 20px;
+    }
+    .th-metric {
+      flex: 1; max-width: 100px;
+      background: rgba(255,255,255,0.15); border-radius: 14px; padding: 12px 8px;
+      text-align: center;
+    }
+    .th-m-val { font-size: 20px; font-weight: 900; }
+    .th-m-label { font-size: 10px; opacity: 0.7; margin-top: 3px; }
+
+    .th-tags {
+      margin-top: 18px; font-size: 12px; opacity: 0.5;
+    }
+    .th-wm {
+      position: absolute; bottom: 12px; right: 18px;
+      font-size: 10px; opacity: 0.35; z-index: 1;
+    }
+
+    /* 메뉴 상세 */
+    .menu-detail { padding: 24px 20px; }
+    .md-label { font-size: 12px; font-weight: 700; color: var(--text3); margin-bottom: 12px; }
+    .md-card {
+      display: flex; align-items: center; gap: 16px;
+      padding: 18px; border-radius: var(--r);
+      background: var(--border);
+    }
+    .md-img {
+      width: 56px; height: 56px; border-radius: 14px;
+      background: #fff; display: flex; align-items: center; justify-content: center;
+      font-size: 32px; flex-shrink: 0; overflow: hidden;
+    }
+    .md-img img { width: 100%; height: 100%; object-fit: cover; }
+    .md-name { font-size: 18px; font-weight: 900; }
+    .md-info { font-size: 12px; color: var(--text3); margin-top: 2px; }
+    .md-desc { font-size: 14px; color: var(--text2); margin-top: 14px; line-height: 1.5; }
+    .md-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+    .md-tag {
+      padding: 4px 10px; border-radius: 6px;
+      background: var(--card); border: 1px solid var(--border);
+      font-size: 11px; color: var(--text3); font-weight: 500;
+    }
+
+    /* 결과 액션 */
+    .result-actions { padding: 0 20px 8px; }
+    .ra-group { margin-bottom: 8px; }
+    .ra-btn {
+      width: 100%; height: 52px; border-radius: var(--r); border: none;
+      font-size: 15px; font-weight: 700; cursor: pointer;
+      font-family: 'Noto Sans KR', sans-serif;
+      transition: all 0.15s; margin-bottom: 8px;
+    }
+    .ra-btn:active { transform: scale(0.98); }
+    .ra-insta {
+      background: linear-gradient(135deg, #833AB4, #E1306C, #F77737);
+      color: #fff;
+    }
+    .ra-share-row { display: flex; gap: 8px; margin-bottom: 8px; }
+    .ra-share {
+      flex: 1; height: 46px; border-radius: var(--r-sm);
+      border: 1px solid var(--border); background: var(--card);
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      font-family: 'Noto Sans KR', sans-serif;
+      color: var(--text2); transition: background 0.15s;
+    }
+    .ra-share:active { background: var(--border); }
+    .ra-nope {
+      background: var(--card); border: 1.5px solid var(--border);
+      color: var(--text2);
+    }
+    .ra-retry {
+      background: var(--card); border: 1.5px solid var(--blue);
+      color: var(--blue);
+    }
+
+    /* 쿠팡 (결과 아래) */
+    .cpg-section { padding: 0 20px 20px; }
+    .cpg-box {
+      padding: 20px; border-radius: var(--r);
+      background: var(--border);
+    }
+    .cpg-label { font-size: 13px; font-weight: 700; color: var(--text2); margin-bottom: 10px; }
+    .cpg-links { display: flex; gap: 8px; }
+    .cpg-link {
+      flex: 1; padding: 12px 6px; border-radius: var(--r-sm);
+      background: var(--card); text-decoration: none;
+      text-align: center; font-size: 12px; font-weight: 600; color: var(--text2);
+      transition: background 0.15s;
+    }
+    .cpg-link:active { background: var(--border); }
+    .cpg-notice { font-size: 9px; color: var(--text4); margin-top: 8px; text-align: center; }
+
+    /* 히스토리 */
+    .hist-section { padding: 0 20px 20px; }
+    .hist-label { font-size: 12px; font-weight: 700; color: var(--text3); margin-bottom: 8px; }
+    .hist-list { display: flex; flex-direction: column; gap: 4px; }
+    .hist-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 14px; border-radius: var(--r-sm);
+      background: var(--border); font-size: 13px;
+    }
+    .hi-emoji { font-size: 20px; }
+    .hi-name { flex: 1; font-weight: 600; }
+    .hi-type { font-size: 11px; color: var(--text3); }
+
+    /* ── 인스타 바텀시트 ── */
+    .overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0); pointer-events: none;
+      transition: background 0.3s;
+    }
+    .overlay.show { background: rgba(0,0,0,0.4); pointer-events: auto; }
+    .bsheet {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 201;
+      max-width: 480px; margin: 0 auto;
+      background: var(--card); border-radius: 20px 20px 0 0;
+      transform: translateY(100%);
+      transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+      max-height: 90vh; overflow-y: auto;
+      padding-bottom: var(--safe-bottom);
+    }
+    .bsheet.show { transform: translateY(0); }
+    .bs-handle {
+      width: 36px; height: 4px; border-radius: 2px;
+      background: var(--text4); margin: 10px auto 0;
+    }
+    .bs-content { padding: 20px 20px 24px; }
+    .bs-title { font-size: 17px; font-weight: 900; margin-bottom: 16px; }
+
+    /* 카드 스타일 선택 */
+    .bs-styles { display: flex; gap: 8px; margin-bottom: 16px; }
+    .bs-style-opt {
+      flex: 1; height: 36px; border-radius: 8px; cursor: pointer;
+      border: 2px solid transparent; transition: border-color 0.2s;
+    }
+    .bs-style-opt.active { border-color: var(--text); box-shadow: 0 0 0 2px rgba(0,0,0,0.1); }
+
+    /* 미리보기 카드 */
+    .bs-preview {
+      width: 280px; height: 280px; margin: 0 auto;
+      border-radius: 16px; overflow: hidden; position: relative;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      color: #fff; text-align: center;
+    }
+    .bs-preview canvas { position: absolute; inset: 0; z-index: 0; }
+    .bs-preview > * { position: relative; z-index: 1; }
+    .bp-badge { font-size: 10px; opacity: 0.8; padding: 3px 10px; background: rgba(255,255,255,0.15); border-radius: 10px; }
+    .bp-emoji { font-size: 44px; margin: 8px 0; }
+    .bp-type { font-size: 11px; opacity: 0.7; }
+    .bp-name { font-size: 22px; font-weight: 900; margin: 2px 0; }
+    .bp-desc { font-size: 11px; opacity: 0.8; }
+    .bp-tags { font-size: 9px; opacity: 0.45; margin-top: 8px; }
+    .bp-wm { position: absolute; bottom: 6px; right: 10px; font-size: 7px; opacity: 0.35; z-index: 1; }
+
+    /* 캡션 */
+    .bs-caption { margin-top: 14px; }
+    .bs-caption-label { font-size: 12px; font-weight: 600; color: var(--text3); margin-bottom: 6px; }
+    .bs-caption-box {
+      position: relative; border: 1px solid var(--border); border-radius: var(--r-sm);
+      overflow: hidden;
+    }
+    .bs-caption-text {
+      width: 100%; padding: 12px 60px 12px 12px; border: none; background: var(--border);
+      font-size: 12px; font-family: 'Noto Sans KR', sans-serif; color: var(--text);
+      resize: none; height: 64px; line-height: 1.5;
+    }
+    .bs-caption-copy {
+      position: absolute; top: 8px; right: 8px; padding: 5px 12px;
+      border-radius: 8px; border: none; background: var(--blue); color: #fff;
+      font-size: 11px; font-weight: 700; cursor: pointer;
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    .bs-dl-btn {
+      width: 100%; height: 50px; border-radius: var(--r); border: none;
+      background: var(--text); color: #fff;
+      font-size: 15px; font-weight: 700; cursor: pointer;
+      font-family: 'Noto Sans KR', sans-serif; margin-top: 14px;
+    }
+
+    /* 640px 다운로드 카드 */
+    .dlc {
+      width: 640px; height: 640px; position: absolute; left: -9999px; top: -9999px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; color: #fff; overflow: hidden;
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+    .dlc canvas { position: absolute; inset: 0; z-index: 0; }
+    .dlc > * { position: relative; z-index: 1; }
+
+    /* 토스트 */
+    .toast {
+      position: fixed; bottom: calc(24px + var(--safe-bottom)); left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      padding: 12px 24px; border-radius: var(--r-sm);
+      background: var(--text); color: #fff;
+      font-size: 14px; font-weight: 600; z-index: 999;
+      opacity: 0; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none; white-space: nowrap;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    .footer {
+      text-align: center; padding: 20px 0;
+      font-size: 11px; color: var(--text4);
+    }
+
+    /* ════════════════════════════════════════
+       쿠팡 대가성 고지
+    ════════════════════════════════════════ */
+    .cpg-disclosure {
+      text-align: center; padding: 8px 16px;
+      font-size: 12px; color: #666; background: #f0f0ef;
+    }
+
+    /* ════════════════════════════════════════
+       후원 섹션
+    ════════════════════════════════════════ */
+    .support-section { padding: 0 20px 24px; }
+    .support-card {
+      background: var(--border); border-radius: var(--r);
+      padding: 24px 20px; text-align: center;
+    }
+    .support-card h3 {
+      font-size: 17px; font-weight: 900; margin-bottom: 6px;
+    }
+    .support-card > p {
+      font-size: 13px; color: var(--text3); margin-bottom: 16px;
+    }
+    .service-tags {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      justify-content: center; margin-bottom: 20px;
+    }
+    .service-tag {
+      padding: 4px 10px; border-radius: 6px;
+      background: var(--card); border: 1px solid var(--border);
+      font-size: 11px; color: var(--text3); font-weight: 500;
+    }
+    .service-tag.highlight {
+      background: var(--blue-bg); border-color: var(--blue);
+      color: var(--blue); font-weight: 700;
+    }
+    .support-actions {
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .support-item {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 16px; border-radius: var(--r-sm);
+      background: var(--card); text-decoration: none; color: var(--text);
+      transition: background 0.15s; cursor: pointer;
+    }
+    .support-item:active { background: var(--border); }
+    .support-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: var(--border); display: flex; align-items: center;
+      justify-content: center; font-size: 20px; flex-shrink: 0;
+    }
+    .s-title { font-size: 14px; font-weight: 700; }
+    .s-desc { font-size: 11px; color: var(--text3); margin-top: 1px; }
+    .support-item .s-text { display: flex; flex-direction: column; text-align: left; }
+
+    /* 기프티콘 업로드 */
+    .gift-upload {
+      display: none; margin-top: 10px; padding: 16px;
+      background: var(--card); border-radius: var(--r-sm);
+      border: 1.5px dashed var(--text4);
+    }
+    .gift-upload.show { display: block; }
+    .gift-upload label {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 8px; cursor: pointer; color: var(--text3); font-size: 13px;
+    }
+    .gift-upload input[type="file"] { display: none; }
+    .gift-status {
+      margin-top: 8px; font-size: 12px; color: var(--green); font-weight: 600;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+<script src="/shared-nav.js"></script>
+
+<div class="app" id="app">
+
+  <!-- 네비게이션 -->
+  <div class="nav">
+    <div class="nav-inner">
+      <button class="nav-back" id="nav-back" onclick="goBack()">&#8592;</button>
+      <div class="nav-title" id="nav-title">오늘 뭐 먹지?</div>
+      <div class="nav-right"></div>
+    </div>
+    <div class="progress"><div class="progress-bar" id="progress" style="width:0%"></div></div>
+  </div>
+
+  <!-- 쿠팡 파트너스 대가성 고지 -->
+  <div class="cpg-disclosure">이 페이지는 쿠팡 파트너스 활동으로 수수료를 제공받습니다</div>
+
+  <!-- ═══ 인트로 ═══ -->
+  <div class="screen active" id="s-intro">
+    <div class="intro">
+      <div class="intro-icon">🍱</div>
+      <h2>6가지 취향으로 찾는<br>나의 점심 유형</h2>
+      <p>선택하면 바로 넘어가요.<br>30초면 끝!</p>
+      <div class="intro-stats">
+        <div class="intro-stat">
+          <div class="intro-stat-val" id="stat-total">0</div>
+          <div class="intro-stat-label">오늘 참여</div>
+        </div>
+        <div class="intro-stat">
+          <div class="intro-stat-val">43</div>
+          <div class="intro-stat-label">메뉴 수</div>
+        </div>
+        <div class="intro-stat">
+          <div class="intro-stat-val">12</div>
+          <div class="intro-stat-label">유형</div>
+        </div>
+      </div>
+    </div>
+    <div class="bottom-area">
+      <button class="btn-primary" onclick="startQuiz()">시작하기</button>
+    </div>
+  </div>
+
+  <!-- ═══ 질문 1~6 ═══ -->
+  <div class="screen" id="s-q1">
+    <div class="q-header">
+      <div class="q-step">1 / 6</div>
+      <div class="q-title">지금 기분이 어때?</div>
+      <div class="q-sub">기분에 맞는 메뉴를 찾아줄게요</div>
+    </div>
+    <div class="q-options" data-group="mood">
+      <button class="q-opt" data-value="chill" onclick="selectOpt(this)">
+        <div class="qo-icon">😌</div>
+        <div class="qo-text"><div class="qo-label">평온해~</div><div class="qo-desc">무난한 게 좋아</div></div>
+        <div class="qo-check">✓</div>
+      </button>
+      <button class="q-opt" data-value="angry" onclick="selectOpt(this)">
+        <div class="qo-icon">🤬</div>
+        <div class="qo-text"><div class="qo-label">좀 짜증나</div><div class="qo-desc">자극적인 거 줘</div></div>
+        <div class="qo-check">✓</div>
+      </button>
+      <button class="q-opt" data-value="sleepy" onclick="selectOpt(this)">
+        <div class="qo-icon">😴</div>
+        <div class="qo-text"><div class="qo-label">졸려 죽겠어</div><div class="qo-desc">빨리 먹고 쉬자</div></div>
+        <div class="qo-check">✓</div>
+      </button>
+      <button class="q-opt" data-value="flex" onclick="selectOpt(this)">
+        <div class="qo-icon">🥳</div>
+        <div class="qo-text"><div class="qo-label">기분 좋아!</div><div class="qo-desc">오늘은 특별하게</div></div>
+        <div class="qo-check">✓</div>
+      </button>
+    </div>
+    <button class="q-skip" data-value="any" onclick="selectSkip(this,'mood')">상관없어, 아무거나</button>
+  </div>
+
+  <div class="screen" id="s-q2">
+    <div class="q-header">
+      <div class="q-step">2 / 6</div>
+      <div class="q-title">얼마나 먹을 거야?</div>
+      <div class="q-sub">식사량을 알려주세요</div>
+    </div>
+    <div class="q-options" data-group="volume">
+      <button class="q-opt" data-value="light" onclick="selectOpt(this)">
+        <div class="qo-icon">🥗</div>
+        <div class="qo-text"><div class="qo-label">라이트</div><div class="qo-desc">가볍게, 500kcal 이하</div></div>
+        <div class="qo-check">✓</div>
+      </button>
+      <button class="q-opt" data-value="normal" onclick="selectOpt(this)">
+        <div class="qo-icon">🍱</div>
+        <div class="qo-text"><div class="qo-label">보통</div><div class="qo-desc">적당히 든든하게</div></div>
+        <div class="qo-check">✓</div>
+      </button>
+      <button class="q-opt" data-value="heavy" onclick="selectOpt(this)">
+        <div class="qo-icon">🍖</div>
+        <div class="qo-text"><div class="qo-label">헤비</div><div class="qo-desc">오늘은 풀 충전</div></div>
+        <div class="qo-check">✓</div>
+      </button>
+    </div>
+    <button class="q-skip" data-value="any" onclick="selectSkip(this,'volume')">상관없어</button>
+  </div>
+
+  <div class="screen" id="s-q3">
+    <div class="q-header">
+      <div class="q-step">3 / 6</div>
+      <div class="q-title">예산은 어느 정도?</div>
+    </div>
+    <div class="q-options" data-group="budget">
+      <button class="q-opt" data-value="low" onclick="selectOpt(this)">
+        <div class="qo-icon">🪙</div>
+        <div class="qo-text"><div class="qo-label">8천원 이하</div><div class="qo-desc">알뜰하게</div></div>
+        <div class="qo-check">✓</div>
+      </button>
+      <button class="q-opt" data-value="mid" onclick="selectOpt(this)">
+        <div class="qo-icon">💵</div>
+        <div class="qo-text"><div class="qo-label">만~만오천원</div><div class="qo-desc">적당히</div></div>
+        <div class="qo-check">✓</div>
+      </button>
+      <button class="q-opt" data-value="high" onclick="selectOpt(this)">
+        <div class="qo-icon">💎</div>
+        <div class="qo-text"><div class="qo-label">1.5만원 이상</div><div class="qo-desc">오늘은 좀 쓰지 뭐</div></div>
+        <div class="qo-check">✓</div>
+      </button>
+    </div>
+    <button class="q-skip" data-value="any" onclick="selectSkip(this,'budget')">상관없어</button>
+  </div>
+
+  <div class="screen" id="s-q4">
+    <div class="q-header">
+      <div class="q-step">4 / 6</div>
+      <div class="q-title">누구랑 먹어?</div>
+    </div>
+    <div class="q-options" data-group="people">
+      <button class="q-opt" data-value="solo" onclick="selectOpt(this)">
+        <div class="qo-icon">🎧</div>
+        <div class="qo-text"><div class="qo-label">혼밥</div><div class="qo-desc">나만의 시간</div></div>
+        <div class="qo-check">✓</div>
+      </button>
+      <button class="q-opt" data-value="duo" onclick="selectOpt(this)">
+        <div class="qo-icon">👯</div>
+        <div class="qo-text"><div class="qo-label">2~3명</div><div class="qo-desc">같이 먹자</div></div>
+        <div class="qo-check">✓</div>
+      </button>
+      <button class="q-opt" data-value="squad" onclick="selectOpt(this)">
+        <div class="qo-icon">🎪</div>
+        <div class="qo-text"><div class="qo-label">4명 이상</div><div class="qo-desc">단체 회식!</div></div>
+        <div class="qo-check">✓</div>
+      </button>
+    </div>
+    <button class="q-skip" data-value="any" onclick="selectSkip(this,'people')">상관없어</button>
+  </div>
+
+  <div class="screen" id="s-q5">
+    <div class="q-header">
+      <div class="q-step">5 / 6</div>
+      <div class="q-title">끌리는 맛은?</div>
+    </div>
+    <div class="q-options" data-group="taste">
+      <button class="q-opt" data-value="spicy" onclick="selectOpt(this)">
+        <div class="qo-icon">🌶️</div>
+        <div class="qo-text"><div class="qo-label">매운 거</div><div class="qo-desc">화끈하게!</div></div>
+        <div class="qo-check">✓</div>
+      </button>
+      <button class="q-opt" data-value="savory" onclick="selectOpt(this)">
+        <div class="qo-icon">🧈</div>
+        <div class="qo-text"><div class="qo-label">고소하고 담백한</div><div class="qo-desc">깔끔한 맛</div></div>
+        <div class="qo-check">✓</div>
+      </button>
+      <button class="q-opt" data-value="sweet" onclick="selectOpt(this)">
+        <div class="qo-icon">🍯</div>
+        <div class="qo-text"><div class="qo-label">달달한</div><div class="qo-desc">달콤 행복</div></div>
+        <div class="qo-check">✓</div>
+      </button>
+      <button class="q-opt" data-value="fresh" onclick="selectOpt(this)">
+        <div class="qo-icon">🍋</div>
+        <div class="qo-text"><div class="qo-label">상큼하고 시원한</div><div class="qo-desc">깔끔 마무리</div></div>
+        <div class="qo-check">✓</div>
+      </button>
+    </div>
+    <button class="q-skip" data-value="any" onclick="selectSkip(this,'taste')">상관없어</button>
+  </div>
+
+  <div class="screen" id="s-q6">
+    <div class="q-header">
+      <div class="q-step">6 / 6</div>
+      <div class="q-title">빼고 싶은 게 있어?</div>
+      <div class="q-sub">해당 없으면 '없어'를 눌러주세요</div>
+    </div>
+    <div class="q-options" data-group="restrict">
+      <button class="q-opt" data-value="none" onclick="selectOpt(this)">
+        <div class="qo-icon">✅</div>
+        <div class="qo-text"><div class="qo-label">없어, 다 좋아!</div></div>
+        <div class="qo-check">✓</div>
+      </button>
+      <button class="q-opt" data-value="nospicy" onclick="selectOpt(this)">
+        <div class="qo-icon">🚫</div>
+        <div class="qo-text"><div class="qo-label">매운 거 빼줘</div></div>
+        <div class="qo-check">✓</div>
+      </button>
+      <button class="q-opt" data-value="noflour" onclick="selectOpt(this)">
+        <div class="qo-icon">🌾</div>
+        <div class="qo-text"><div class="qo-label">밀가루 빼줘</div></div>
+        <div class="qo-check">✓</div>
+      </button>
+      <button class="q-opt" data-value="veg" onclick="selectOpt(this)">
+        <div class="qo-icon">🌱</div>
+        <div class="qo-text"><div class="qo-label">채식만</div></div>
+        <div class="qo-check">✓</div>
+      </button>
+      <button class="q-opt" data-value="nomeat" onclick="selectOpt(this)">
+        <div class="qo-icon">🐄</div>
+        <div class="qo-text"><div class="qo-label">고기 빼줘</div></div>
+        <div class="qo-check">✓</div>
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══ 로딩 (분석 + 쿠팡) ═══ -->
+  <div class="screen loading-screen" id="s-loading">
+    <div class="loader-ring"></div>
+    <div class="loader-emoji" id="load-emoji">🍜</div>
+    <div class="loader-msg" id="load-msg">취향 분석 중</div>
+    <div class="loader-sub" id="load-sub">43개 메뉴를 비교하고 있어요</div>
+    <div class="loader-percent" id="load-pct">0%</div>
+
+    <div class="load-cpg">
+      <div class="load-cpg-label">기다리는 동안 구경해보세요</div>
+      <div class="load-cpg-cards">
+        <a class="load-cpg-card" href="https://link.coupang.com/a/902ddf93-7cfe-4c1a-8533-ad11797d848b/cd5794799233ddbf5fd670d6e86601a7c78616be" target="_blank" rel="noopener noreferrer nofollow" onclick="onCpgClick()">
+          <span class="lcc-icon">🥬</span><span class="lcc-text">신선식품 장보기</span><span class="lcc-arrow">→</span>
+        </a>
+        <a class="load-cpg-card" href="https://link.coupang.com/a/902ddf93-7cfe-4c1a-8533-ad11797d848b/cd5794799233ddbf5fd670d6e86601a7c78616be" target="_blank" rel="noopener noreferrer nofollow" onclick="onCpgClick()">
+          <span class="lcc-icon">🍱</span><span class="lcc-text">간편식 / 밀키트</span><span class="lcc-arrow">→</span>
+        </a>
+        <a class="load-cpg-card" href="https://link.coupang.com/a/902ddf93-7cfe-4c1a-8533-ad11797d848b/cd5794799233ddbf5fd670d6e86601a7c78616be" target="_blank" rel="noopener noreferrer nofollow" onclick="onCpgClick()">
+          <span class="lcc-icon">☕</span><span class="lcc-text">식후 커피</span><span class="lcc-arrow">→</span>
+        </a>
+      </div>
+      <div class="load-cpg-notice">쿠팡 파트너스 활동의 일환으로 수수료를 제공받을 수 있습니다.</div>
+    </div>
+  </div>
+
+  <!-- ═══ 결과 ═══ -->
+  <div class="screen result-screen" id="s-result">
+    <div class="type-hero" id="type-hero">
+      <canvas id="hero-bg" width="480" height="480"></canvas>
+      <div class="th-badge">나의 점심 유형</div>
+      <div class="th-emoji" id="th-emoji">🔥</div>
+      <div class="th-name" id="th-name">폭풍 흡입러</div>
+      <div class="th-title" id="th-title">"칼로리? 먹는 건데?"</div>
+      <div class="th-desc" id="th-desc">...</div>
+      <div class="th-metrics">
+        <div class="th-metric"><div class="th-m-val" id="thm-cal">550</div><div class="th-m-label">kcal</div></div>
+        <div class="th-metric"><div class="th-m-val" id="thm-match">94%</div><div class="th-m-label">적중률</div></div>
+        <div class="th-metric"><div class="th-m-val" id="thm-rank">#2</div><div class="th-m-label">인기</div></div>
+      </div>
+      <div class="th-tags">#오늘뭐먹지 #점심유형테스트 #직장인점심</div>
+      <div class="th-wm">오늘뭐먹지.site</div>
+    </div>
+
+    <div class="menu-detail">
+      <div class="md-label">추천 메뉴</div>
+      <div class="md-card">
+        <div class="md-img" id="md-img"><span>🍲</span></div>
+        <div><div class="md-name" id="md-name">김치찌개</div><div class="md-info" id="md-info">한식 · 450kcal</div></div>
+      </div>
+      <div class="md-desc" id="md-desc">"얼큰하고 칼칼한 한국인의 소울푸드"</div>
+      <div class="md-tags" id="md-tags"></div>
+    </div>
+
+    <div class="result-actions">
+      <button class="ra-btn ra-insta" onclick="openSheet()">인스타에 공유하기</button>
+      <div class="ra-share-row">
+        <button class="ra-share" onclick="copyLink()">🔗 링크</button>
+        <button class="ra-share" onclick="shareTwitter()">🐦 트위터</button>
+        <button class="ra-share" onclick="shareKakao()">💬 카톡</button>
+      </div>
+      <button class="ra-btn ra-nope" onclick="rejectRespin()">이거 말고 다른 거</button>
+      <button class="ra-btn ra-retry" onclick="resetAll()">처음부터 다시</button>
+    </div>
+
+    <div class="cpg-section">
+      <div class="cpg-box">
+        <div class="cpg-label">직접 해먹어볼까?</div>
+        <div class="cpg-links">
+          <a class="cpg-link" href="https://link.coupang.com/a/902ddf93-7cfe-4c1a-8533-ad11797d848b/cd5794799233ddbf5fd670d6e86601a7c78616be" target="_blank" rel="noopener noreferrer nofollow">🥬 장보기</a>
+          <a class="cpg-link" href="https://link.coupang.com/a/902ddf93-7cfe-4c1a-8533-ad11797d848b/cd5794799233ddbf5fd670d6e86601a7c78616be" target="_blank" rel="noopener noreferrer nofollow">🍱 밀키트</a>
+          <a class="cpg-link" href="https://link.coupang.com/a/902ddf93-7cfe-4c1a-8533-ad11797d848b/cd5794799233ddbf5fd670d6e86601a7c78616be" target="_blank" rel="noopener noreferrer nofollow">☕ 커피</a>
+        </div>
+        <div class="cpg-notice">쿠팡 파트너스 활동의 일환으로 수수료를 제공받을 수 있습니다.</div>
+      </div>
+    </div>
+
+    <div class="hist-section" id="hist-section" style="display:none">
+      <div class="hist-label">최근 기록</div>
+      <div class="hist-list" id="hist-list"></div>
+    </div>
+
+    <!-- 후원 섹션 -->
+    <section class="support-section">
+      <div class="support-card">
+        <h3>개발 의뢰 · 문의</h3>
+        <p>아래와 같은 프로젝트를 진행할 수 있습니다</p>
+        <div class="service-tags">
+          <span class="service-tag highlight">커스텀 프로젝트 극비 진행</span>
+          <span class="service-tag">웹사이트 제작</span>
+          <span class="service-tag">자동화 봇</span>
+          <span class="service-tag">데이터 수집</span>
+          <span class="service-tag">AI 연동 서비스</span>
+          <span class="service-tag">1:1 맞춤 개발</span>
+        </div>
+        <div class="support-actions">
+          <a class="support-item" id="emailContact" href="#">
+            <div class="support-icon">✉️</div>
+            <div class="s-text"><span class="s-title">이메일 문의</span><span class="s-desc">클릭하면 메일이 열립니다</span></div>
+          </a>
+          <div class="support-item" id="giftToggle">
+            <div class="support-icon">🎁</div>
+            <div class="s-text"><span class="s-title">기프티콘 보내기</span><span class="s-desc">안 쓰는 기프티콘 이미지 첨부</span></div>
+          </div>
+          <div class="gift-upload" id="giftUpload">
+            <label>
+              <span style="font-size:28px">📎</span>
+              <span>이미지를 선택해주세요 (최대 5MB)</span>
+              <input type="file" id="giftFile" accept="image/*" onchange="uploadGift(this)">
+            </label>
+            <div class="gift-status" id="giftStatus">감사합니다! 전송 완료 ❤️</div>
+          </div>
+          <a class="support-item" href="https://toss.me" target="_blank" rel="noopener">
+            <div class="support-icon">💰</div>
+            <div class="s-text"><span class="s-title">후원하기</span><span class="s-desc">토스로 응원금 보내기</span></div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer">&copy; 2026 오늘 뭐 먹지?</div>
+  </div>
+</div>
+
+<!-- 인스타 바텀시트 -->
+<div class="overlay" id="overlay" onclick="closeSheet()"></div>
+<div class="bsheet" id="bsheet">
+  <div class="bs-handle"></div>
+  <div class="bs-content">
+    <div class="bs-title">공유 카드</div>
+    <div class="bs-styles" id="bs-styles"></div>
+    <div class="bs-preview" id="bs-preview">
+      <canvas id="bs-bg"></canvas>
+      <div class="bp-badge">나의 점심 유형</div>
+      <div class="bp-emoji" id="bp-emoji">🔥</div>
+      <div class="bp-type" id="bp-type">먹보</div>
+      <div class="bp-name" id="bp-name">김치찌개</div>
+      <div class="bp-desc" id="bp-desc">"설명"</div>
+      <div class="bp-tags">#오늘뭐먹지 #점심유형테스트</div>
+      <div class="bp-wm">오늘뭐먹지.site</div>
+    </div>
+    <div class="bs-caption">
+      <div class="bs-caption-label">인스타 캡션</div>
+      <div class="bs-caption-box">
+        <textarea class="bs-caption-text" id="caption" readonly></textarea>
+        <button class="bs-caption-copy" onclick="copyCaption()">복사</button>
+      </div>
+    </div>
+    <button class="bs-dl-btn" onclick="downloadCard()">이미지 저장 (640x640)</button>
+  </div>
+</div>
+
+<!-- 640px 다운 카드 -->
+<div class="dlc" id="dlc">
+  <canvas id="dl-bg" width="640" height="640"></canvas>
+  <div class="d-badge" style="font-size:18px;opacity:.8;padding:6px 20px;background:rgba(255,255,255,.15);border-radius:16px">나의 점심 유형</div>
+  <div style="font-size:96px;margin:16px 0" id="dl-emoji">🔥</div>
+  <div style="font-size:20px;opacity:.75" id="dl-type">먹보</div>
+  <div style="font-size:44px;font-weight:900;margin:6px 0" id="dl-name">김치찌개</div>
+  <div style="font-size:22px;opacity:.85" id="dl-menu">"설명"</div>
+  <div style="font-size:16px;opacity:.7;margin-top:8px;max-width:480px" id="dl-desc">서브</div>
+  <div style="font-size:16px;opacity:.5;margin-top:20px">#오늘뭐먹지 #점심유형테스트 #직장인점심</div>
+  <div style="position:absolute;bottom:16px;right:24px;font-size:13px;opacity:.4;z-index:1">오늘뭐먹지.site</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════
+const M=[
+  {n:"김치찌개",e:"🍲",d:"얼큰하고 칼칼한 소울푸드",cal:450,b:"low",solo:1,spicy:3,flour:0,veg:0,meat:1,cat:"한식",vol:"normal",taste:["spicy"],mood:["angry","sleepy"],img:""},
+  {n:"된장찌개",e:"🫕",d:"구수한 된장이 위로하는 맛",cal:380,b:"low",solo:1,spicy:1,flour:0,veg:1,meat:0,cat:"한식",vol:"normal",taste:["savory"],mood:["chill","sleepy"],img:""},
+  {n:"순두부찌개",e:"🍲",d:"부드러운 순두부에 달걀 톡",cal:420,b:"low",solo:1,spicy:2,flour:0,veg:0,meat:1,cat:"한식",vol:"normal",taste:["spicy"],mood:["angry","chill"],img:""},
+  {n:"비빔밥",e:"🍚",d:"알록달록 건강한 한 그릇",cal:520,b:"low",solo:1,spicy:1,flour:0,veg:1,meat:0,cat:"한식",vol:"normal",taste:["fresh","spicy"],mood:["chill","flex"],img:""},
+  {n:"냉면",e:"🍜",d:"시원한 육수에 쫄깃 면발",cal:460,b:"mid",solo:1,spicy:0,flour:1,veg:0,meat:0,cat:"한식",vol:"light",taste:["fresh"],mood:["chill","flex"],img:""},
+  {n:"삼겹살",e:"🥓",d:"고기 굽는 소리가 ASMR",cal:750,b:"mid",solo:0,spicy:0,flour:0,veg:0,meat:1,cat:"한식",vol:"heavy",taste:["savory"],mood:["angry","flex"],img:""},
+  {n:"국밥",e:"🥘",d:"뜨끈한 국물에 밥 말아 한 그릇",cal:520,b:"low",solo:1,spicy:1,flour:0,veg:0,meat:1,cat:"한식",vol:"heavy",taste:["savory"],mood:["sleepy","angry"],img:""},
+  {n:"칼국수",e:"🍜",d:"손칼국수 면발에 시원한 국물",cal:450,b:"low",solo:1,spicy:0,flour:1,veg:0,meat:0,cat:"한식",vol:"normal",taste:["savory"],mood:["chill","sleepy"],img:""},
+  {n:"불고기",e:"🥩",d:"달콤 간장 양념의 부드러운 고기",cal:600,b:"mid",solo:0,spicy:0,flour:0,veg:0,meat:1,cat:"한식",vol:"normal",taste:["sweet","savory"],mood:["flex","chill"],img:""},
+  {n:"제육볶음",e:"🍖",d:"매콤달콤 밥도둑, 밥 리필 각",cal:620,b:"low",solo:1,spicy:2,flour:0,veg:0,meat:1,cat:"한식",vol:"heavy",taste:["spicy","sweet"],mood:["angry","sleepy"],img:""},
+  {n:"닭갈비",e:"🐔",d:"치즈 추가 필수, 매콤 닭갈비",cal:580,b:"mid",solo:0,spicy:2,flour:0,veg:0,meat:1,cat:"한식",vol:"heavy",taste:["spicy"],mood:["angry","flex"],img:""},
+  {n:"쌈밥",e:"🥬",d:"고기+채소 밸런스의 정석",cal:480,b:"mid",solo:0,spicy:0,flour:0,veg:0,meat:1,cat:"한식",vol:"normal",taste:["fresh","savory"],mood:["chill","flex"],img:""},
+  {n:"김치볶음밥",e:"🍳",d:"집밥 느낌, 달걀 후라이 필수",cal:500,b:"low",solo:1,spicy:2,flour:0,veg:0,meat:0,cat:"한식",vol:"normal",taste:["spicy"],mood:["sleepy","angry"],img:""},
+  {n:"갈비탕",e:"🍖",d:"진한 갈비 국물에 녹진한 고기",cal:680,b:"high",solo:1,spicy:0,flour:0,veg:0,meat:1,cat:"한식",vol:"heavy",taste:["savory"],mood:["flex"],img:""},
+  {n:"라멘",e:"🍜",d:"진한 돈코츠 한 그릇의 행복",cal:550,b:"mid",solo:1,spicy:1,flour:1,veg:0,meat:1,cat:"일식",vol:"normal",taste:["savory"],mood:["angry","sleepy"],img:""},
+  {n:"초밥",e:"🍣",d:"신선한 생선+밥, 입안에서 녹아",cal:400,b:"high",solo:1,spicy:0,flour:0,veg:0,meat:1,cat:"일식",vol:"light",taste:["fresh"],mood:["flex","chill"],img:""},
+  {n:"돈카츠",e:"🍱",d:"바삭 튀김옷 + 육즙 완벽 공식",cal:680,b:"mid",solo:1,spicy:0,flour:1,veg:0,meat:1,cat:"일식",vol:"heavy",taste:["savory"],mood:["angry","flex"],img:""},
+  {n:"우동",e:"🍜",d:"굵은 면에 따뜻한 국물, 편안함",cal:420,b:"low",solo:1,spicy:0,flour:1,veg:0,meat:0,cat:"일식",vol:"light",taste:["savory"],mood:["sleepy","chill"],img:""},
+  {n:"규동",e:"🥩",d:"달콤 소고기 덮밥, 간편 한 끼",cal:580,b:"mid",solo:1,spicy:0,flour:0,veg:0,meat:1,cat:"일식",vol:"normal",taste:["sweet","savory"],mood:["sleepy","chill"],img:""},
+  {n:"카레라이스",e:"🍛",d:"진한 카레에 밥 한 스푼",cal:520,b:"low",solo:1,spicy:1,flour:1,veg:0,meat:0,cat:"일식",vol:"normal",taste:["sweet","spicy"],mood:["sleepy","chill"],img:""},
+  {n:"짜장면",e:"🍝",d:"달콤 짭조름한 춘장의 마법",cal:600,b:"low",solo:1,spicy:0,flour:1,veg:0,meat:0,cat:"중식",vol:"normal",taste:["sweet","savory"],mood:["sleepy","angry"],img:""},
+  {n:"짬뽕",e:"🍜",d:"얼큰 해물 국물의 중화면",cal:550,b:"low",solo:1,spicy:3,flour:1,veg:0,meat:0,cat:"중식",vol:"normal",taste:["spicy"],mood:["angry"],img:""},
+  {n:"마라탕",e:"🌶️",d:"얼얼 매콤, 중독성 최고",cal:650,b:"mid",solo:1,spicy:3,flour:0,veg:0,meat:1,cat:"중식",vol:"heavy",taste:["spicy"],mood:["angry","flex"],img:""},
+  {n:"탕수육",e:"🍗",d:"바삭 튀김에 새콤달콤 소스",cal:700,b:"mid",solo:0,spicy:0,flour:1,veg:0,meat:1,cat:"중식",vol:"heavy",taste:["sweet"],mood:["flex"],img:""},
+  {n:"볶음밥",e:"🍳",d:"불맛 가득 중화 볶음밥",cal:550,b:"low",solo:1,spicy:0,flour:0,veg:0,meat:0,cat:"중식",vol:"normal",taste:["savory"],mood:["sleepy"],img:""},
+  {n:"마라샹궈",e:"🥘",d:"내 취향대로 건더기 선택",cal:620,b:"mid",solo:1,spicy:3,flour:0,veg:0,meat:1,cat:"중식",vol:"heavy",taste:["spicy"],mood:["angry","flex"],img:""},
+  {n:"파스타",e:"🍝",d:"오일? 크림? 로제? 골라봐",cal:580,b:"mid",solo:1,spicy:0,flour:1,veg:0,meat:0,cat:"양식",vol:"normal",taste:["savory"],mood:["flex","chill"],img:""},
+  {n:"피자",e:"🍕",d:"치즈 늘어나는 한 조각의 행복",cal:700,b:"mid",solo:0,spicy:0,flour:1,veg:0,meat:1,cat:"양식",vol:"heavy",taste:["savory"],mood:["flex","angry"],img:""},
+  {n:"수제버거",e:"🍔",d:"육즙 팡! 수제 패티의 위엄",cal:680,b:"mid",solo:1,spicy:0,flour:1,veg:0,meat:1,cat:"양식",vol:"heavy",taste:["savory"],mood:["angry","sleepy"],img:""},
+  {n:"샌드위치",e:"🥪",d:"가볍지만 알찬 한 끼",cal:380,b:"low",solo:1,spicy:0,flour:1,veg:1,meat:0,cat:"양식",vol:"light",taste:["fresh"],mood:["chill"],img:""},
+  {n:"스테이크",e:"🥩",d:"미디엄 레어, 오늘이 특별한 날",cal:750,b:"high",solo:1,spicy:0,flour:0,veg:0,meat:1,cat:"양식",vol:"heavy",taste:["savory"],mood:["flex"],img:""},
+  {n:"샐러드",e:"🥗",d:"오늘은 건강하게, 내일 치킨",cal:280,b:"mid",solo:1,spicy:0,flour:0,veg:1,meat:0,cat:"양식",vol:"light",taste:["fresh"],mood:["chill"],img:""},
+  {n:"리조또",e:"🍚",d:"크리미한 치즈 리조또",cal:520,b:"mid",solo:1,spicy:0,flour:0,veg:0,meat:0,cat:"양식",vol:"normal",taste:["savory","sweet"],mood:["chill","flex"],img:""},
+  {n:"떡볶이",e:"🍢",d:"매콤달콤 쫄깃, 추억의 맛",cal:480,b:"low",solo:1,spicy:2,flour:1,veg:0,meat:0,cat:"분식",vol:"normal",taste:["spicy","sweet"],mood:["angry","sleepy"],img:""},
+  {n:"김밥",e:"🍙",d:"한 줄이면 든든한 만능 메뉴",cal:350,b:"low",solo:1,spicy:0,flour:0,veg:0,meat:0,cat:"분식",vol:"light",taste:["savory"],mood:["chill","sleepy"],img:""},
+  {n:"라볶이",e:"🍜",d:"라면+떡볶이의 환상 조합",cal:550,b:"low",solo:1,spicy:2,flour:1,veg:0,meat:0,cat:"분식",vol:"heavy",taste:["spicy"],mood:["angry","sleepy"],img:""},
+  {n:"잔치국수",e:"🍜",d:"멸치 육수에 소면 호로록",cal:350,b:"low",solo:1,spicy:0,flour:1,veg:0,meat:0,cat:"분식",vol:"light",taste:["savory"],mood:["chill","sleepy"],img:""},
+  {n:"오므라이스",e:"🍳",d:"달걀 옷 입은 볶음밥",cal:520,b:"low",solo:1,spicy:0,flour:0,veg:0,meat:0,cat:"분식",vol:"normal",taste:["sweet","savory"],mood:["chill","flex"],img:""},
+  {n:"쌀국수",e:"🍜",d:"베트남 향 가득, 가볍게",cal:420,b:"mid",solo:1,spicy:1,flour:0,veg:0,meat:0,cat:"아시안",vol:"light",taste:["fresh"],mood:["chill","flex"],img:""},
+  {n:"포케볼",e:"🥗",d:"연어+아보카도, 건강+맛",cal:450,b:"mid",solo:1,spicy:0,flour:0,veg:0,meat:0,cat:"아시안",vol:"light",taste:["fresh"],mood:["chill","flex"],img:""},
+  {n:"타코",e:"🌮",d:"또띠아에 고기+살사 한 입",cal:480,b:"mid",solo:1,spicy:1,flour:1,veg:0,meat:1,cat:"아시안",vol:"normal",taste:["spicy","fresh"],mood:["flex"],img:""},
+  {n:"브런치",e:"🥞",d:"에그베네딕트, 카페 감성",cal:550,b:"high",solo:1,spicy:0,flour:1,veg:0,meat:0,cat:"양식",vol:"normal",taste:["sweet","savory"],mood:["flex","chill"],img:""},
+  {n:"순대",e:"🌭",d:"찰지고 고소한 당면 순대",cal:400,b:"low",solo:1,spicy:0,flour:0,veg:0,meat:1,cat:"분식",vol:"normal",taste:["savory"],mood:["sleepy"],img:""},
+];
+
+const TYPES={
+  heavy_angry:{name:"폭풍 흡입러",title:'"칼로리? 그게 뭔데 먹는 건데?"',emoji:"🔥",match:97,rank:3},
+  heavy_flex:{name:"럭셔리 먹짱",title:'"오늘은 내가 쏜다"',emoji:"👑",match:95,rank:7},
+  heavy_chill:{name:"든든파 대표",title:'"배부르면 세상이 평화로워"',emoji:"🐻",match:92,rank:5},
+  heavy_sleepy:{name:"풀충전 필요형",title:'"밥이 보약이다"',emoji:"🔋",match:90,rank:8},
+  normal_angry:{name:"매운맛 해결사",title:'"스트레스는 캡사이신으로"',emoji:"🌶️",match:94,rank:2},
+  normal_flex:{name:"오늘만 사는 미식가",title:'"맛있는 건 0칼로리"',emoji:"✨",match:96,rank:1},
+  normal_chill:{name:"무난이즈 베스트",title:'"뭐든 맛있으면 장땡"',emoji:"😌",match:88,rank:4},
+  normal_sleepy:{name:"빠른 한 끼 장인",title:'"5분 컷으로 먹고 낮잠"',emoji:"⚡",match:85,rank:9},
+  light_angry:{name:"건강한 분노 표출러",title:'"샐러드 먹으면서 화내는 중"',emoji:"🥊",match:89,rank:10},
+  light_flex:{name:"힙한 건강러",title:'"아보카도 토스트가 정체성"',emoji:"🥑",match:93,rank:6},
+  light_chill:{name:"소식좌",title:'"조금 먹어도 행복해"',emoji:"🌸",match:87,rank:11},
+  light_sleepy:{name:"귀차니즘 라이트",title:'"김밥 한 줄이면 충분"',emoji:"💤",match:82,rank:12},
+  any_any:{name:"점심 자유영혼",title:'"아무거나 줘, 다 먹어"',emoji:"🎲",match:90,rank:6},
+};
+
+const LOAD_MSGS=["취향 분석 중","맛 궁합 계산 중","메뉴 비교 중","칼로리 체크 중","위장 상태 확인 중","최적 메뉴 선정 중"];
+const EMOJIS=[...new Set(M.map(m=>m.e))];
+
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+const state={mood:null,volume:null,budget:null,people:null,taste:null,restrict:null};
+const STEPS=['s-intro','s-q1','s-q2','s-q3','s-q4','s-q5','s-q6','s-loading','s-result'];
+const GROUPS=['','mood','volume','budget','people','taste','restrict'];
+let step=0, curMenu=null, curType=null, rejected=[];
+
+// stats
+const today=new Date().toISOString().slice(0,10);
+let stats=JSON.parse(localStorage.getItem('lunchStats')||'{}');
+if(stats.date!==today){stats={date:today,count:0};}
+document.getElementById('stat-total').textContent=stats.count||0;
+
+// ══════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════
+function goTo(s){
+  document.querySelectorAll('.screen').forEach(el=>el.classList.remove('active'));
+  document.getElementById(STEPS[s]).classList.add('active');
+  step=s;
+
+  // progress
+  const pct=s<=0?0:s>=8?100:Math.round((s/7)*100);
+  document.getElementById('progress').style.width=pct+'%';
+
+  // back button
+  document.getElementById('nav-back').classList.toggle('show',s>0&&s<8);
+
+  // nav title
+  const titles=['오늘 뭐 먹지?','기분','식사량','예산','인원','맛','제한','분석 중','결과'];
+  document.getElementById('nav-title').textContent=titles[s]||'';
+
+  window.scrollTo({top:0});
+}
+
+function goBack(){
+  if(step>1&&step<=7)goTo(step-1);
+  else if(step===1)goTo(0);
+}
+
+function startQuiz(){goTo(1);}
+
+// ══════════════════════════════════════════
+// SELECT → AUTO ADVANCE
+// ══════════════════════════════════════════
+function selectOpt(btn){
+  const group=btn.closest('.q-options').dataset.group;
+  const val=btn.dataset.value;
+
+  // visual
+  btn.closest('.q-options').querySelectorAll('.q-opt').forEach(b=>b.classList.remove('selected'));
+  const skipBtn=btn.closest('.screen').querySelector('.q-skip');
+  if(skipBtn)skipBtn.classList.remove('selected');
+  btn.classList.add('selected');
+
+  state[group]=val;
+
+  // auto advance after brief delay
+  setTimeout(()=>advance(),300);
+}
+
+function selectSkip(btn,group){
+  const screen=btn.closest('.screen');
+  screen.querySelectorAll('.q-opt').forEach(b=>b.classList.remove('selected'));
+  screen.querySelectorAll('.q-skip').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  state[group]=null;
+  setTimeout(()=>advance(),300);
+}
+
+function advance(){
+  if(step<7)goTo(step+1);
+  if(step===7)startLoading();
+}
+
+// ══════════════════════════════════════════
+// LOADING (with coupang)
+// ══════════════════════════════════════════
+function startLoading(){
+  goTo(7);
+  const pctEl=document.getElementById('load-pct');
+  const msgEl=document.getElementById('load-msg');
+  const emojiEl=document.getElementById('load-emoji');
+  let pct=0,mi=0;
+
+  const iv=setInterval(()=>{
+    pct+=Math.floor(Math.random()*12)+3;
+    if(pct>100)pct=100;
+    pctEl.textContent=pct+'%';
+    emojiEl.textContent=EMOJIS[Math.floor(Math.random()*EMOJIS.length)];
+    if(pct%20<15){msgEl.textContent=LOAD_MSGS[mi%LOAD_MSGS.length];mi++;}
+    if(pct>=100){
+      clearInterval(iv);
+      setTimeout(()=>showResult(),500);
+    }
+  },300);
+
+  stats.count=(stats.count||0)+1;
+  localStorage.setItem('lunchStats',JSON.stringify(stats));
+}
+
+function onCpgClick(){/* tracking */}
+
+// ══════════════════════════════════════════
+// FILTER & PICK
+// ══════════════════════════════════════════
+function filterMenus(){
+  return M.filter(m=>{
+    if(rejected.includes(m.n))return false;
+    if(state.budget==='low'&&m.b!=='low')return false;
+    if(state.budget==='mid'&&m.b==='high')return false;
+    if(state.people==='solo'&&!m.solo)return false;
+    if(state.restrict==='veg'&&!m.veg)return false;
+    if(state.restrict==='nospicy'&&m.spicy>=2)return false;
+    if(state.restrict==='noflour'&&m.flour)return false;
+    if(state.restrict==='nomeat'&&m.meat)return false;
+    if(state.volume==='light'&&m.vol==='heavy')return false;
+    if(state.volume==='heavy'&&m.vol==='light')return false;
+    return true;
+  });
+}
+
+function pickMenu(list){
+  if(!list.length){rejected=[];return M[Math.floor(Math.random()*M.length)];}
+  const scored=list.map(m=>{
+    let s=1;
+    if(state.mood&&m.mood.includes(state.mood))s+=3;
+    if(state.taste&&m.taste.includes(state.taste))s+=2;
+    return{m,s};
+  });
+  const tot=scored.reduce((a,x)=>a+x.s,0);
+  let r=Math.random()*tot;
+  for(const{m,s}of scored){r-=s;if(r<=0)return m;}
+  return scored[scored.length-1].m;
+}
+
+function getType(){
+  const v=state.volume||'any';
+  const m=state.mood||'any';
+  return TYPES[v+'_'+m]||TYPES['any_any'];
+}
+
+// ══════════════════════════════════════════
+// RESULT
+// ══════════════════════════════════════════
+function showResult(){
+  const list=filterMenus();
+  const menu=pickMenu(list);
+  const type=getType();
+  curMenu=menu;curType=type;
+
+  // hero
+  paintBg(document.getElementById('hero-bg'),480,480);
+  document.getElementById('th-emoji').textContent=type.emoji;
+  document.getElementById('th-name').textContent=type.name;
+  document.getElementById('th-title').textContent=type.title;
+  document.getElementById('th-desc').textContent=`오늘의 추천 메뉴는 "${menu.n}"! ${menu.d}`;
+  document.getElementById('thm-cal').textContent=menu.cal;
+  document.getElementById('thm-match').textContent=type.match+'%';
+  document.getElementById('thm-rank').textContent='#'+type.rank;
+
+  // menu card
+  const img=document.getElementById('md-img');
+  img.innerHTML=menu.img?`<img src="${menu.img}" alt="${menu.n}">`:`<span>${menu.e}</span>`;
+  document.getElementById('md-name').textContent=menu.n;
+  document.getElementById('md-info').textContent=`${menu.cat} · ${menu.cal}kcal`;
+  document.getElementById('md-desc').textContent=`"${menu.d}"`;
+
+  const tags=[];
+  if(menu.vol==='light')tags.push('가벼운');else if(menu.vol==='heavy')tags.push('든든한');
+  tags.push(menu.cat);
+  if(menu.spicy>=2)tags.push('매운맛');
+  if(menu.veg)tags.push('채식');
+  if(menu.solo)tags.push('혼밥OK');
+  document.getElementById('md-tags').innerHTML=tags.map(t=>`<span class="md-tag">${t}</span>`).join('');
+
+  // save history
+  const hist=JSON.parse(localStorage.getItem('lunchHist')||'[]');
+  hist.unshift({name:menu.n,emoji:menu.e,type:type.name});
+  localStorage.setItem('lunchHist',JSON.stringify(hist.slice(0,5)));
+  renderHist();
+
+  goTo(8);
+}
+
+function renderHist(){
+  const h=JSON.parse(localStorage.getItem('lunchHist')||'[]');
+  if(!h.length){document.getElementById('hist-section').style.display='none';return;}
+  document.getElementById('hist-section').style.display='block';
+  document.getElementById('hist-list').innerHTML=h.map(x=>`<div class="hist-item"><span class="hi-emoji">${x.emoji}</span><span class="hi-name">${x.name}</span><span class="hi-type">${x.type}</span></div>`).join('');
+}
+
+function rejectRespin(){
+  if(curMenu)rejected.push(curMenu.n);
+  const list=filterMenus();
+  const menu=pickMenu(list);
+  const type=getType();
+  curMenu=menu;curType=type;
+
+  paintBg(document.getElementById('hero-bg'),480,480);
+  document.getElementById('th-emoji').textContent=type.emoji;
+  document.getElementById('th-name').textContent=type.name;
+  document.getElementById('th-title').textContent=type.title;
+  document.getElementById('th-desc').textContent=`오늘의 추천 메뉴는 "${menu.n}"! ${menu.d}`;
+  document.getElementById('thm-cal').textContent=menu.cal;
+
+  const img=document.getElementById('md-img');
+  img.innerHTML=menu.img?`<img src="${menu.img}">`:`<span>${menu.e}</span>`;
+  document.getElementById('md-name').textContent=menu.n;
+  document.getElementById('md-info').textContent=`${menu.cat} · ${menu.cal}kcal`;
+  document.getElementById('md-desc').textContent=`"${menu.d}"`;
+
+  const tags=[];
+  if(menu.vol==='light')tags.push('가벼운');else if(menu.vol==='heavy')tags.push('든든한');
+  tags.push(menu.cat);if(menu.spicy>=2)tags.push('매운맛');if(menu.veg)tags.push('채식');if(menu.solo)tags.push('혼밥OK');
+  document.getElementById('md-tags').innerHTML=tags.map(t=>`<span class="md-tag">${t}</span>`).join('');
+
+  document.getElementById('type-hero').scrollIntoView({behavior:'smooth'});
+  toast(`"${rejected[rejected.length-1]}" 제외됨`);
+}
+
+function resetAll(){rejected=[];step=0;goTo(0);}
+
+// ══════════════════════════════════════════
+// INSTA SHEET
+// ══════════════════════════════════════════
+const GRADS=[['#FF6B35','#FF3CAC'],['#7F00FF','#E100FF'],['#00C9FF','#92FE9D'],['#FC5C7D','#6A82FB'],['#F857A6','#FF5858'],['#11998E','#38EF7D'],['#ee0979','#ff6a00'],['#667eea','#764ba2']];
+let curGI=0;
+
+function paintBg(cv,w,h,gi){
+  const ctx=cv.getContext('2d');cv.width=w;cv.height=h;
+  const i=gi!==undefined?gi:Math.floor(Math.random()*GRADS.length);
+  curGI=i;const g=GRADS[i];
+  const grad=ctx.createLinearGradient(0,0,w,h);
+  grad.addColorStop(0,g[0]);grad.addColorStop(1,g[1]);
+  ctx.fillStyle=grad;ctx.fillRect(0,0,w,h);
+  ctx.globalAlpha=.06;ctx.fillStyle='#fff';
+  for(let j=0;j<5;j++){ctx.beginPath();ctx.arc(Math.random()*w,Math.random()*h,40+Math.random()*w*.3,0,Math.PI*2);ctx.fill();}
+  ctx.globalAlpha=1;
+}
+
+function openSheet(){
+  if(!curMenu||!curType)return;
+  const p=document.getElementById('bs-preview');
+  paintBg(document.getElementById('bs-bg'),p.offsetWidth||280,p.offsetWidth||280);
+  document.getElementById('bp-emoji').textContent=curType.emoji;
+  document.getElementById('bp-type').textContent=curType.name;
+  document.getElementById('bp-name').textContent=curMenu.n;
+  document.getElementById('bp-desc').textContent=`"${curMenu.d}"`;
+
+  paintBg(document.getElementById('dl-bg'),640,640,curGI);
+  document.getElementById('dl-emoji').textContent=curType.emoji;
+  document.getElementById('dl-type').textContent=curType.name;
+  document.getElementById('dl-name').textContent=curMenu.n;
+  document.getElementById('dl-menu').textContent=`"${curMenu.d}"`;
+  document.getElementById('dl-desc').textContent=curType.title;
+
+  document.getElementById('caption').value=`오늘 나의 점심 유형: ${curType.name} ${curType.emoji}\n메뉴: ${curMenu.n}\n${curType.title}\n\n#오늘뭐먹지 #점심유형테스트 #직장인점심 #${curMenu.cat}`;
+
+  // styles
+  document.getElementById('bs-styles').innerHTML=GRADS.slice(0,6).map((g,i)=>
+    `<div class="bs-style-opt${i===curGI?' active':''}" style="background:linear-gradient(135deg,${g[0]},${g[1]})" onclick="changeStyle(${i})"></div>`
+  ).join('');
+
+  document.getElementById('overlay').classList.add('show');
+  document.getElementById('bsheet').classList.add('show');
+}
+
+function closeSheet(){
+  document.getElementById('overlay').classList.remove('show');
+  document.getElementById('bsheet').classList.remove('show');
+}
+
+function changeStyle(i){
+  curGI=i;
+  const p=document.getElementById('bs-preview');
+  paintBg(document.getElementById('bs-bg'),p.offsetWidth,p.offsetWidth,i);
+  paintBg(document.getElementById('dl-bg'),640,640,i);
+  document.getElementById('bs-styles').querySelectorAll('.bs-style-opt').forEach((el,j)=>el.classList.toggle('active',j===i));
+}
+
+function copyCaption(){
+  navigator.clipboard.writeText(document.getElementById('caption').value).then(()=>toast('캡션 복사됨')).catch(()=>toast('복사 실패'));
+}
+
+function downloadCard(){
+  const el=document.getElementById('dlc');
+  el.style.cssText='position:fixed;left:0;top:0;z-index:9999;width:640px;height:640px;';
+  html2canvas(el,{width:640,height:640,scale:1,useCORS:true,backgroundColor:null}).then(c=>{
+    el.style.cssText='position:absolute;left:-9999px;top:-9999px;';
+    const a=document.createElement('a');a.download=`점심유형_${curType.name}_${curMenu.n}.png`;a.href=c.toDataURL('image/png');a.click();
+    toast('이미지 저장됨');
+  }).catch(()=>{el.style.cssText='position:absolute;left:-9999px;top:-9999px;';toast('저장 실패');});
+}
+
+// ══════════════════════════════════════════
+// SHARE
+// ══════════════════════════════════════════
+function copyLink(){
+  navigator.clipboard.writeText(`나의 점심 유형: ${curType.name} ${curType.emoji} → ${curMenu.n}\n${location.href}`).then(()=>toast('복사됨')).catch(()=>toast('복사 실패'));
+}
+function shareTwitter(){
+  window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(`나의 점심 유형: ${curType.name} ${curType.emoji}\n메뉴: ${curMenu.n}\n#오늘뭐먹지 #점심유형테스트`)}`,'_blank');
+}
+function shareKakao(){
+  navigator.clipboard.writeText(`나의 점심 유형: ${curType.name} ${curType.emoji}\n메뉴: ${curMenu.n}\n${curType.title}\n\n나도 해보기 → ${location.href}`).then(()=>toast('카톡에 붙여넣기 하세요')).catch(()=>toast('복사 실패'));
+}
+
+function toast(msg){
+  const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),2000);
+}
+
+renderHist();
+
+// ══════════════════════════════════════════
+// SUPPORT SECTION
+// ══════════════════════════════════════════
+// email (obfuscated)
+const _e=['s2olll','27','@','gm','ail','.com'];
+document.getElementById('emailContact').href='mailto:'+_e.join('');
+
+// gift toggle
+document.getElementById('giftToggle').addEventListener('click',function(){
+  document.getElementById('giftUpload').classList.toggle('show');
+});
+
+function uploadGift(input){
+  const file=input.files[0];
+  if(!file)return;
+  if(file.size>5*1024*1024){toast('5MB 이하 이미지만 가능합니다');return;}
+  // show success (실제 서버 연동 시 fetch로 전송)
+  document.getElementById('giftStatus').style.display='block';
+  toast('기프티콘 감사합니다! ❤️');
+}
+</script>
+</body>
+</html>
